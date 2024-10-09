@@ -1,43 +1,69 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PasswordEntry from './components/PasswordEntry';
-import Home from './components/Home';
 import GuestRegistrationForm from './components/GuestRegistrationForm';
+import HomePage from './components/HomePage';
+import RSVP from './components/RSVP';
+import SongSelection from './components/SongSelection';
+import Memories from './components/Memories';
 
-export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    if (storedAuth === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={
-            isAuthenticated ?
-              <Navigate to="/register" /> :
-              <PasswordEntry setIsAuthenticated={setIsAuthenticated} />
-          }
-        />
+        <Route path="/" element={<PasswordEntry />} />
         <Route
           path="/register"
           element={
-            isAuthenticated ? <GuestRegistrationForm /> : <Navigate to="/" />
+            <ProtectedRoute>
+              <GuestRegistrationForm />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/home"
           element={
-            isAuthenticated ? <Home /> : <Navigate to="/" />
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rsvp"
+          element={
+            <ProtectedRoute>
+              <RSVP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/song-selection"
+          element={
+            <ProtectedRoute>
+              <SongSelection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/memories"
+          element={
+            <ProtectedRoute>
+              <Memories />
+            </ProtectedRoute>
           }
         />
       </Routes>
     </Router>
   );
+};
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
 }
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
+};
+
+export default App;

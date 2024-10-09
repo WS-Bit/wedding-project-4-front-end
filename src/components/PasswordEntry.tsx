@@ -1,31 +1,78 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { checkPassword } from '../services/api';
+import axios from 'axios';
 
-interface PasswordEntryProps {
-    setIsAuthenticated?: (value: boolean) => void;
-}
-
-export default function PasswordEntry({ setIsAuthenticated }: PasswordEntryProps) {
+const PasswordEntry = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const fetchCsrfToken = async () => {
+            try {
+                await axios.get('/api/csrf_cookie/', { withCredentials: true });
+                console.log('CSRF token fetched successfully');
+            } catch (err) {
+                console.error('Error fetching CSRF token:', err);
+            }
+        };
+        fetchCsrfToken();
+    }, []);
+
+    const getCookie = (name: string): string | null => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+        return null;
+    };
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError('');
+
+        const csrfToken = getCookie('csrftoken');
+        console.log('CSRF Token:', csrfToken);
+
         try {
-            const response = await checkPassword(password);
+            console.log('Sending password to server...');
+            const response = await axios.post('/api/enter_password/',
+                { password },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken || '',
+                    },
+                    withCredentials: true
+                }
+            );
+
+            console.log('Server response:', response);
+
             if (response.data.is_authenticated) {
                 localStorage.setItem('isAuthenticated', 'true');
-                if (setIsAuthenticated) {
-                    setIsAuthenticated(true);
-                }
                 navigate('/register');
             } else {
                 setError('Incorrect password. Please try again.');
             }
         } catch (err) {
-            setError('An error occurred. Please try again.');
+            console.error('Error during password submission:', err);
+            if (axios.isAxiosError(err)) {
+                console.error('Axios error details:', {
+                    response: err.response,
+                    request: err.request,
+                    message: err.message
+                });
+                if (err.response) {
+                    console.error('Full error response:', err.response);
+                    setError(`Error: ${err.response.data.error || err.response.data.details || err.response.statusText || 'An unexpected error occurred'}`);
+                } else if (err.request) {
+                    setError('No response received from the server. Please try again.');
+                } else {
+                    setError(`Error: ${err.message}`);
+                }
+            } else {
+                setError('An unexpected error occurred. Please try again.');
+            }
         }
     };
 
@@ -50,4 +97,6 @@ export default function PasswordEntry({ setIsAuthenticated }: PasswordEntryProps
             </div>
         </div>
     );
-}
+};
+
+export default PasswordEntry;
