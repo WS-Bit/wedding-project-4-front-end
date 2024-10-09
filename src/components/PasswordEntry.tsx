@@ -2,7 +2,11 @@ import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkPassword } from '../services/api';
 
-export default function PasswordEntry() {
+interface PasswordEntryProps {
+    setIsAuthenticated?: (value: boolean) => void;
+}
+
+export default function PasswordEntry({ setIsAuthenticated }: PasswordEntryProps) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -13,10 +17,15 @@ export default function PasswordEntry() {
             const response = await checkPassword(password);
             if (response.data.is_authenticated) {
                 localStorage.setItem('isAuthenticated', 'true');
+                if (setIsAuthenticated) {
+                    setIsAuthenticated(true);
+                }
                 navigate('/register');
+            } else {
+                setError('Incorrect password. Please try again.');
             }
         } catch (err) {
-            setError('Incorrect password. Please try again.');
+            setError('An error occurred. Please try again.');
         }
     };
 

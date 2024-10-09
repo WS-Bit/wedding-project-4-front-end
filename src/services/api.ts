@@ -1,19 +1,23 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';  // Adjust this to your Django server URL
-
 const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    baseURL: 'http://127.0.0.1:8000',  // Adjust this to your Django server's URL
+    withCredentials: true,
 });
 
-export const checkPassword = (password: string) => api.post('/enter-password/', { password });
-export const registerGuest = (guestData: any) => api.post('/guests/', guestData);
-export const getGuestInfo = () => api.get('/guests/');
-export const submitRSVP = (rsvpData: any) => api.post('/rsvp/', rsvpData);
-export const submitSongRequest = (songData: any) => api.post('/songrequests/', songData);
-export const submitMemory = (memoryData: any) => api.post('/memories/', memoryData);
+function getCsrfToken() {
+    return document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+}
 
-export default api;
+api.interceptors.request.use(config => {
+    config.headers['X-CSRFToken'] = getCsrfToken();
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
+export const checkPassword = (password: string) => api.post('/api/enter_password/', { password });
+export const registerGuest = (guestData: FormData) => api.post('/api/guests/', guestData);
+
+// Add this function to check authentication status
+export const checkAuthStatus = () => api.get('/api/auth_status/');

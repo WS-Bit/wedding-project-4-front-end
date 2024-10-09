@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+
 const DIETARY_CHOICES = [
     { value: 'N/A', label: 'Not Applicable' },
     { value: 'VEG', label: 'Vegetarian' },
@@ -41,13 +42,26 @@ const GuestRegistrationForm: React.FC = () => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await axios.post<FormData>('/api/guests/', formData);
+            // Include credentials in the request
+            const response = await axios.post<FormData>('api/guests/', formData, {
+                withCredentials: true // This ensures cookies are sent with the request
+            });
             if (response.status === 201) {
                 localStorage.setItem('isGuestRegistered', 'true');
                 navigate('/home');
             }
         } catch (err) {
-            setError('Failed to register. Please try again.');
+            if (axios.isAxiosError(err) && err.response) {
+                if (err.response.status === 403) {
+                    setError('Authentication failed. Please try entering the password again.');
+                    // Optionally, you could redirect to the password entry page here
+                    // navigate('/enter-password');
+                } else {
+                    setError('Failed to register. Please try again.');
+                }
+            } else {
+                setError('An unexpected error occurred. Please try again.');
+            }
         }
     };
 
