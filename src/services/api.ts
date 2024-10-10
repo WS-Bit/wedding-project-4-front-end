@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+import { GuestData } from '../types';
+
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000',  // Adjust this to your Django server's URL
+    baseURL: 'http://127.0.0.1:8000/api',  // Adjust this to your Django server's URL
     withCredentials: true,
 });
 
@@ -16,8 +18,15 @@ api.interceptors.request.use(config => {
     return Promise.reject(error);
 });
 
-export const checkPassword = (password: string) => api.post('/api/enter_password/', { password });
-export const registerGuest = (guestData: FormData) => api.post('/api/guests/', guestData);
+export const fetchCsrfToken = () => api.get('/csrf_cookie/');
+export const checkPassword = (password: string) => api.post('/enter_password/', { password });
+export const registerGuest = (guestData: GuestData) => api.post('/guests/', guestData);
+export const fetchGuests = () => api.get('/guests/');
+export const submitRSVP = (rsvpData: any) => api.post('/rsvp/', rsvpData);
+export const submitSongRequest = (songData: any) => api.post('/songrequests/', songData);
+export const submitMemory = (memoryData: any) => api.post('/memories/', memoryData);
 
 // Add this function to check authentication status
-export const checkAuthStatus = () => api.get('/api/auth_status/');
+export const checkAuthStatus = () => api.get('/auth_status/');
+
+export default api;

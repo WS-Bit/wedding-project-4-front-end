@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { checkPassword, fetchCsrfToken } from '../services/api';
 
 const PasswordEntry = () => {
     const [password, setPassword] = useState('');
@@ -8,43 +8,24 @@ const PasswordEntry = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCsrfToken = async () => {
+        const initializeCsrf = async () => {
             try {
-                await axios.get('/api/csrf_cookie/', { withCredentials: true });
+                await fetchCsrfToken();
                 console.log('CSRF token fetched successfully');
             } catch (err) {
                 console.error('Error fetching CSRF token:', err);
             }
         };
-        fetchCsrfToken();
+        initializeCsrf();
     }, []);
-
-    const getCookie = (name: string): string | null => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-        return null;
-    };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
 
-        const csrfToken = getCookie('csrftoken');
-        console.log('CSRF Token:', csrfToken);
-
         try {
             console.log('Sending password to server...');
-            const response = await axios.post('/api/enter_password/',
-                { password },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken || '',
-                    },
-                    withCredentials: true
-                }
-            );
+            const response = await checkPassword(password);
 
             console.log('Server response:', response);
 
@@ -56,20 +37,8 @@ const PasswordEntry = () => {
             }
         } catch (err) {
             console.error('Error during password submission:', err);
-            if (axios.isAxiosError(err)) {
-                console.error('Axios error details:', {
-                    response: err.response,
-                    request: err.request,
-                    message: err.message
-                });
-                if (err.response) {
-                    console.error('Full error response:', err.response);
-                    setError(`Error: ${err.response.data.error || err.response.data.details || err.response.statusText || 'An unexpected error occurred'}`);
-                } else if (err.request) {
-                    setError('No response received from the server. Please try again.');
-                } else {
-                    setError(`Error: ${err.message}`);
-                }
+            if (err instanceof Error) {
+                setError(`Error: ${err.message}`);
             } else {
                 setError('An unexpected error occurred. Please try again.');
             }

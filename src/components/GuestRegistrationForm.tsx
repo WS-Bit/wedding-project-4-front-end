@@ -1,26 +1,8 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const DIETARY_CHOICES = [
-    { value: 'N/A', label: 'Not Applicable' },
-    { value: 'VEG', label: 'Vegetarian' },
-    { value: 'VGN', label: 'Vegan' },
-    { value: 'GF', label: 'Gluten-Free' },
-    { value: 'NUT', label: 'Nut-Free' },
-    { value: 'LAC', label: 'Lactose-Free' },
-    { value: 'SPE', label: 'Specific' },
-] as const;
-
-type DietaryChoice = typeof DIETARY_CHOICES[number]['value'];
-
-interface GuestData {
-    name: string;
-    email: string;
-    phone: string;
-    dietary_restrictions: DietaryChoice;
-    specific_dietary_restrictions: string;
-}
+import { registerGuest, fetchCsrfToken } from '../services/api';
+import { GuestData, DIETARY_CHOICES, } from '../types';
+import CustomPhoneInput from './CustomPhoneInput';
 
 const GuestRegistrationForm = () => {
     const [guests, setGuests] = useState<GuestData[]>([{
@@ -31,27 +13,23 @@ const GuestRegistrationForm = () => {
         specific_dietary_restrictions: '',
     }]);
     const [error, setError] = useState<string>('');
+    const [success, setSuccess] = useState<string>('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.defaults.withCredentials = true;
-        const csrfToken = getCookie('csrftoken');
-        if (csrfToken) {
-            axios.defaults.headers.common['X-CSRFToken'] = csrfToken;
-        }
+        fetchCsrfToken();
     }, []);
-
-    const getCookie = (name: string): string | null => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-        return null;
-    };
 
     const handleChange = (index: number) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setGuests(prevGuests => prevGuests.map((guest, i) => 
+        setGuests(prevGuests => prevGuests.map((guest, i) =>
             i === index ? { ...guest, [name]: value } : guest
+        ));
+    };
+
+    const handlePhoneChange = (index: number) => (value: string) => {
+        setGuests(prevGuests => prevGuests.map((guest, i) =>
+            i === index ? { ...guest, phone: value } : guest
         ));
     };
 
@@ -72,16 +50,14 @@ const GuestRegistrationForm = () => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
+        setSuccess('');
+
+        let allGuestsRegistered = true;
 
         for (const guest of guests) {
             try {
                 console.log('Submitting guest:', JSON.stringify(guest, null, 2));
-                const response = await axios.post<GuestData>('/api/guests/', guest, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken') || '',
-                    },
-                });
+                const response = await registerGuest(guest);
                 console.log('Response:', response);
                 if (response.status !== 201) {
                     throw new Error(`Failed to register guest ${guest.name}`);
@@ -90,31 +66,21 @@ const GuestRegistrationForm = () => {
                 console.error('Full error object:', err);
                 let errorMessage = `Failed to register ${guest.name}: `;
 
-                if (axios.isAxiosError(err)) {
-                    if (err.response) {
-                        console.error('Error response:', err.response);
-                        console.error('Error data:', err.response.data);
-                        console.error('Error status:', err.response.status);
-                        console.error('Error headers:', err.response.headers);
-                        errorMessage += JSON.stringify(err.response.data) || err.message;
-                    } else if (err.request) {
-                        console.error('Error request:', err.request);
-                        errorMessage += 'No response received from server';
-                    } else {
-                        errorMessage += err.message;
-                    }
+                if (err instanceof Error) {
+                    errorMessage += err.message;
                 } else {
                     errorMessage += 'An unexpected error occurred';
                 }
 
                 setError(prev => prev + errorMessage + '\n');
-                return; // Stop processing further guests if there's an error
+                allGuestsRegistered = false;
             }
         }
 
-        if (!error) {
+        if (allGuestsRegistered) {
+            setSuccess('All guests registered successfully!');
             localStorage.setItem('isGuestRegistered', 'true');
-            navigate('/home');
+            setTimeout(() => navigate('/home'), 2000);  // Navigate after 2 seconds
         }
     };
 
@@ -144,14 +110,9 @@ const GuestRegistrationForm = () => {
                                 placeholder="Email"
                                 required
                             />
-                            <input
-                                type="tel"
-                                name="phone"
+                            <CustomPhoneInput
                                 value={guest.phone}
-                                onChange={handleChange(index)}
-                                className="w-full p-2 mb-4 border rounded"
-                                placeholder="Phone Number"
-                                required
+                                onChange={handlePhoneChange(index)}
                             />
                             <select
                                 name="dietary_restrictions"
@@ -197,6 +158,7 @@ const GuestRegistrationForm = () => {
                     </button>
                 </form>
                 {error && <p className="mt-4 text-red-500">{error}</p>}
+                {success && <p className="mt-4 text-green-500">{success}</p>}
             </div>
         </div>
     );
