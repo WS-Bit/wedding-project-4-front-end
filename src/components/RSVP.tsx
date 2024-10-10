@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchGuests, submitRSVP } from '../services/api';
+import { sharedStyles } from '../styles/shared';
 
 const WEDDING_CHOICES = [
     { value: 'ENG', label: 'England' },
@@ -85,87 +86,87 @@ const RSVP = () => {
     };
 
     if (isLoading) {
-        return <div>Loading guests...</div>;
+        return <div className={sharedStyles.pageContainer}>Loading guests...</div>;
     }
 
     return (
-        <div className="max-w-md mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-4">RSVP</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700">
-                        Select Your Name
-                    </label>
-                    <select
-                        id="guest_id"
-                        name="guest_id"
-                        value={formData.guest_id || ''}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                        required
-                    >
-                        <option value="">Select a guest</option>
-                        {guests.map((guest) => (
-                            <option key={guest.id} value={guest.id}>
-                                {guest.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label htmlFor="wedding_selection" className="block text-sm font-medium text-gray-700">
-                        Which wedding(s) will you attend?
-                    </label>
-                    <select
-                        id="wedding_selection"
-                        name="wedding_selection"
-                        value={formData.wedding_selection}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                        {WEDDING_CHOICES.map((choice) => (
-                            <option key={choice.value} value={choice.value}>
-                                {choice.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label className="flex items-center">
-                        <input
-                            type="checkbox"
-                            name="is_attending"
-                            checked={formData.is_attending}
+        <div className={sharedStyles.pageContainer}>
+            <div className={sharedStyles.contentContainer}>
+                <h2 className={sharedStyles.heading}>RSVP</h2>
+                <form onSubmit={handleSubmit} className={sharedStyles.form}>
+                    <div>
+                        <label htmlFor="guest_id" className={sharedStyles.label}>
+                            Select Your Name
+                        </label>
+                        <select
+                            id="guest_id"
+                            name="guest_id"
+                            value={formData.guest_id || ''}
                             onChange={handleChange}
-                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            className={sharedStyles.select}
+                            required
+                        >
+                            <option value="">Select a guest</option>
+                            {guests.map((guest) => (
+                                <option key={guest.id} value={guest.id}>
+                                    {guest.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="wedding_selection" className="block text-sm font-medium text-gray-700 mb-1">
+                            Which wedding(s) will you attend?
+                        </label>
+                        <select
+                            id="wedding_selection"
+                            name="wedding_selection"
+                            value={formData.wedding_selection}
+                            onChange={handleChange}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
+                        >
+                            {WEDDING_CHOICES.map((choice) => (
+                                <option key={choice.value} value={choice.value}>
+                                    {choice.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="flex items-center">
+                            <input
+                                type="checkbox"
+                                name="is_attending"
+                                checked={formData.is_attending}
+                                onChange={handleChange}
+                                className="rounded border-gray-300 text-pink-600 shadow-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50"
+                            />
+                            <span className="ml-2 text-gray-700">I will be attending</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label htmlFor="additional_notes" className="block text-sm font-medium text-gray-700 mb-1">
+                            Additional Notes
+                        </label>
+                        <textarea
+                            id="additional_notes"
+                            name="additional_notes"
+                            value={formData.additional_notes}
+                            onChange={handleChange}
+                            rows={3}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
                         />
-                        <span className="ml-2">I will be attending</span>
-                    </label>
-                </div>
-                <div>
-                    <label htmlFor="additional_notes" className="block text-sm font-medium text-gray-700">
-                        Additional Notes
-                    </label>
-                    <textarea
-                        id="additional_notes"
-                        name="additional_notes"
-                        value={formData.additional_notes}
-                        onChange={handleChange}
-                        rows={3}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    Submit RSVP
-                </button>
-            </form>
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            {success && <p className="mt-2 text-sm text-green-600">{success}</p>}
+                    </div>
+                    <button type="submit" className={sharedStyles.button}>
+                        Submit RSVP
+                    </button>
+                </form>
+                {error && <p className={sharedStyles.errorText}>{error}</p>}
+                {success && <p className={sharedStyles.successText}>{success}</p>}
+            </div>
         </div>
     );
 };
+
 
 export default RSVP;
