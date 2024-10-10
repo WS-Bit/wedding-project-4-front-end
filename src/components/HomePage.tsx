@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { sharedStyles } from '../styles/shared';
-
 const HomePage = () => {
     return (
         <div className={sharedStyles.pageContainer}>

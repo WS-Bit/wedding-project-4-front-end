@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchGuests, submitMemory, fetchAllMemories } from '../services/api';
 import { sharedStyles } from '../styles/shared';
+import axios, { AxiosError } from 'axios';
 
 interface Guest {
     id: number;
@@ -20,7 +21,12 @@ interface MemoryData {
     memory_text: string;
 }
 
-const Memories = () => {
+interface ErrorResponse {
+    detail?: string;
+    [key: string]: unknown;
+}
+
+const Memories: React.FC = () => {
     const [guests, setGuests] = useState<Guest[]>([]);
     const [formData, setFormData] = useState<MemoryData>({
         guest_id: null,
@@ -32,28 +38,24 @@ const Memories = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const loadGuests = async () => {
+        const loadData = async () => {
+            setIsLoading(true);
             try {
-                const response = await fetchGuests();
-                setGuests(response.data);
+                const [guestsResponse, memoriesResponse] = await Promise.all([
+                    fetchGuests(),
+                    fetchAllMemories()
+                ]);
+                setGuests(guestsResponse.data);
+                setMemories(memoriesResponse.data);
             } catch (err) {
-                console.error('Failed to fetch guests', err);
-                setError('Failed to load guest list. Please try again later.');
+                console.error('Failed to fetch data', err);
+                setError('Failed to load data. Please try again later.');
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        const loadMemories = async () => {
-            try {
-                const response = await fetchAllMemories();
-                setMemories(response.data);
-            } catch (err) {
-                console.error('Failed to fetch memories', err);
-                setError('Failed to load memories. Please try again later.');
-            }
-        };
-        loadGuests();
-        loadMemories();
-        setIsLoading(false);
+        loadData();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -72,16 +74,37 @@ const Memories = () => {
         }
 
         try {
+            console.log('Submitting memory:', formData);
             const response = await submitMemory(formData);
+            console.log('Server response:', response);
             if (response.status === 201) {
                 setSuccess('Memory shared successfully!');
                 setFormData({ guest_id: formData.guest_id, memory_text: '' });
-                const updatedMemories = await fetchAllMemories();
-                setMemories(updatedMemories.data);
+
+                // Fetch and update memories immediately
+                const updatedMemoriesResponse = await fetchAllMemories();
+                setMemories(updatedMemoriesResponse.data);
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error('Error sharing memory:', err);
-            setError('Failed to share memory. Please try again.');
+
+            if (axios.isAxiosError(err)) {
+                const axiosError = err as AxiosError<ErrorResponse>;
+                if (axiosError.response) {
+                    console.error('Response data:', axiosError.response.data);
+                    console.error('Response status:', axiosError.response.status);
+                    console.error('Response headers:', axiosError.response.headers);
+
+                    const errorDetail = axiosError.response.data?.detail || 'An unknown error occurred';
+                    setError(`Failed to share memory. Server responded with: ${errorDetail}`);
+                } else {
+                    setError(`Failed to share memory. ${axiosError.message}`);
+                }
+            } else if (err instanceof Error) {
+                setError(`Failed to share memory. Error: ${err.message}`);
+            } else {
+                setError('Failed to share memory due to an unknown error.');
+            }
         }
     };
 
@@ -150,7 +173,7 @@ const Memories = () => {
                                         {memory.guest_name ? memory.guest_name : "Unknown Guest"}
                                     </h4>
                                     <p className="text-gray-600">{memory.memory_text}</p>
-                                    <p className="text-sm text-gray-500 mt-2">Shared on: {memory.date_shared}</p>
+                                    <p className="text-sm text-gray-500 mt-2">Shared on: {new Date(memory.date_shared).toLocaleDateString()}</p>
                                 </li>
                             ))}
                         </ul>
