@@ -25,6 +25,8 @@ export const fetchGuests = () => api.get('/guests/');
 export const submitRSVP = (rsvpData: any) => api.post('/rsvp/', rsvpData);
 export const submitSongRequest = (songData: any) => api.post('/songrequests/', songData);
 export const submitMemory = (memoryData: any) => api.post('/memories/', memoryData);
+export const fetchAllMemories = () => api.get('/memories/all/');
+
 
 // Add this function to check authentication status
 export const checkAuthStatus = () => api.get('/auth_status/');
