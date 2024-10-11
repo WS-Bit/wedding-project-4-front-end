@@ -11,7 +11,9 @@ function Root() {
 
   return (
     <StrictMode>
-      <App />
+      <div className="h-full">
+        <App />
+      </div>
     </StrictMode>
   );
 }

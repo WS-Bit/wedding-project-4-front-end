@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchGuests, submitRSVP } from '../services/api';
 import { sharedStyles } from '../styles/shared';
+import BackButton from './BackButton';
+import AnimatedForm from './AnimatedForm';
 
 const WEDDING_CHOICES = [
     { value: 'ENG', label: 'England' },
@@ -90,10 +92,10 @@ const RSVP = () => {
     }
 
     return (
-        <div className={sharedStyles.pageContainer}>
+        <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.contentContainer}>
-                <h2 className={sharedStyles.heading}>RSVP</h2>
-                <form onSubmit={handleSubmit} className={sharedStyles.form}>
+                <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
+                    <h2 className={sharedStyles.heading}>RSVP</h2>
                     <div>
                         <label htmlFor="guest_id" className={sharedStyles.label}>
                             Select Your Name
@@ -115,7 +117,7 @@ const RSVP = () => {
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="wedding_selection" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="wedding_selection" className={sharedStyles.label}>
                             Which wedding(s) will you attend?
                         </label>
                         <select
@@ -123,7 +125,7 @@ const RSVP = () => {
                             name="wedding_selection"
                             value={formData.wedding_selection}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
+                            className={sharedStyles.select}
                         >
                             {WEDDING_CHOICES.map((choice) => (
                                 <option key={choice.value} value={choice.value}>
@@ -145,7 +147,7 @@ const RSVP = () => {
                         </label>
                     </div>
                     <div>
-                        <label htmlFor="additional_notes" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="additional_notes" className={sharedStyles.label}>
                             Additional Notes
                         </label>
                         <textarea
@@ -154,19 +156,19 @@ const RSVP = () => {
                             value={formData.additional_notes}
                             onChange={handleChange}
                             rows={3}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
+                            className={sharedStyles.input}
                         />
                     </div>
                     <button type="submit" className={sharedStyles.button}>
                         Submit RSVP
                     </button>
-                </form>
+                    <BackButton className="mt-4" />
+                </AnimatedForm>
                 {error && <p className={sharedStyles.errorText}>{error}</p>}
                 {success && <p className={sharedStyles.successText}>{success}</p>}
             </div>
         </div>
     );
 };
-
 
 export default RSVP;

@@ -53,7 +53,7 @@ const PasswordEntry = () => {
     };
 
     return (
-        <div className={sharedStyles.pageContainer}>
+        <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.contentContainer}>
                 <h2 className={sharedStyles.heading}>Welcome to Our Wedding</h2>
                 <p className="text-center mb-6 text-gray-600">Please enter the password to access our special day details.</p>

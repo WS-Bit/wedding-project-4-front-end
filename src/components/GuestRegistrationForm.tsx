@@ -1,9 +1,11 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerGuest, fetchCsrfToken } from '../services/api';
-import { GuestData, DIETARY_CHOICES, } from '../types';
+import { GuestData, DIETARY_CHOICES } from '../types';
 import CustomPhoneInput from './CustomPhoneInput';
 import { sharedStyles } from '../styles/shared';
+
+type ErrorState = Record<string, string | undefined>;
 
 const GuestRegistrationForm = () => {
     const [guests, setGuests] = useState<GuestData[]>([{
@@ -13,7 +15,8 @@ const GuestRegistrationForm = () => {
         dietary_restrictions: '',
         specific_dietary_restrictions: '',
     }]);
-    const [error, setError] = useState<string>('');
+    const [errors, setErrors] = useState<ErrorState[]>([{}]);
+    const [generalError, setGeneralError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
     const navigate = useNavigate();
 
@@ -26,11 +29,19 @@ const GuestRegistrationForm = () => {
         setGuests(prevGuests => prevGuests.map((guest, i) =>
             i === index ? { ...guest, [name]: value } : guest
         ));
+        // Clear error for this field when user starts typing
+        setErrors(prevErrors => prevErrors.map((error, i) =>
+            i === index ? { ...error, [name]: undefined } : error
+        ));
     };
 
     const handlePhoneChange = (index: number) => (value: string) => {
         setGuests(prevGuests => prevGuests.map((guest, i) =>
             i === index ? { ...guest, phone: value } : guest
+        ));
+        // Clear phone error when user changes the phone number
+        setErrors(prevErrors => prevErrors.map((error, i) =>
+            i === index ? { ...error, phone: undefined } : error
         ));
     };
 
@@ -42,36 +53,42 @@ const GuestRegistrationForm = () => {
             dietary_restrictions: '',
             specific_dietary_restrictions: '',
         }]);
+        setErrors(prevErrors => [...prevErrors, {}]);
     };
 
     const removeGuest = (index: number) => {
         setGuests(prevGuests => prevGuests.filter((_, i) => i !== index));
+        setErrors(prevErrors => prevErrors.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setError('');
+        setErrors(guests.map(() => ({})));
+        setGeneralError('');
         setSuccess('');
 
         let allGuestsRegistered = true;
 
-        for (const guest of guests) {
+        for (let i = 0; i < guests.length; i++) {
+            const guest = guests[i];
             try {
                 const response = await registerGuest(guest);
                 if (response.status !== 201) {
-                    throw new Error(`Failed to register guest ${guest.name}`);
+                    throw response;
                 }
-            } catch (err) {
-                let errorMessage = `Failed to register ${guest.name}: `;
-
-                if (err instanceof Error) {
-                    errorMessage += err.message;
-                } else {
-                    errorMessage += 'An unexpected error occurred';
-                }
-
-                setError(prev => prev + errorMessage + '\n');
+            } catch (err: any) {
                 allGuestsRegistered = false;
+                if (err.response && err.response.status === 400) {
+                    // Handle validation errors
+                    setErrors(prevErrors => {
+                        const newErrors = [...prevErrors];
+                        newErrors[i] = err.response.data;
+                        return newErrors;
+                    });
+                } else {
+                    // Handle unexpected errors
+                    setGeneralError('An unexpected error occurred. Please try again.');
+                }
             }
         }
 
@@ -83,58 +100,74 @@ const GuestRegistrationForm = () => {
     };
 
     return (
-        <div className={sharedStyles.pageContainer}>
+        <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
                 <h2 className={sharedStyles.heading}>Guest Registration</h2>
+                {generalError && <p className={sharedStyles.errorText}>{generalError}</p>}
                 <form onSubmit={handleSubmit} className={sharedStyles.form}>
                     {guests.map((guest, index) => (
                         <div key={index} className="mb-6 p-4 border rounded border-pink-200">
                             <h3 className="text-lg font-semibold mb-2 text-gray-700">Guest {index + 1}</h3>
-                            <input
-                                type="text"
-                                name="name"
-                                value={guest.name}
-                                onChange={handleChange(index)}
-                                className={sharedStyles.input}
-                                placeholder="Full Name"
-                                required
-                            />
-                            <input
-                                type="email"
-                                name="email"
-                                value={guest.email}
-                                onChange={handleChange(index)}
-                                className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
-                                placeholder="Email Address"
-                                required
-                            />
-                            <CustomPhoneInput
-                                value={guest.phone}
-                                onChange={handlePhoneChange(index)}
-                                placeholder="Phone Number"
-                            />
-                            <select
-                                name="dietary_restrictions"
-                                value={guest.dietary_restrictions}
-                                onChange={handleChange(index)}
-                                className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
-                                required
-                            >
-                                <option value="" disabled>Select Dietary Restrictions</option>
-                                {DIETARY_CHOICES.map(choice => (
-                                    <option key={choice.value} value={choice.value}>
-                                        {choice.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {guest.dietary_restrictions === 'SPE' && (
-                                <textarea
-                                    name="specific_dietary_restrictions"
-                                    value={guest.specific_dietary_restrictions}
+                            <div className="mb-4">
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={guest.name}
                                     onChange={handleChange(index)}
-                                    className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition"
-                                    placeholder="Please specify your dietary restrictions"
+                                    className={`${sharedStyles.input} ${errors[index]?.name ? 'border-red-500' : ''}`}
+                                    placeholder="Full Name"
+                                    required
                                 />
+                                {errors[index]?.name && <p className={sharedStyles.errorText}>{errors[index].name}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={guest.email}
+                                    onChange={handleChange(index)}
+                                    className={`${sharedStyles.input} ${errors[index]?.email ? 'border-red-500' : ''}`}
+                                    placeholder="Email Address"
+                                    required
+                                />
+                                {errors[index]?.email && <p className={sharedStyles.errorText}>{errors[index].email}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <CustomPhoneInput
+                                    value={guest.phone}
+                                    onChange={handlePhoneChange(index)}
+                                    placeholder="Phone Number"
+                                />
+                                {errors[index]?.phone && <p className={sharedStyles.errorText}>{errors[index].phone}</p>}
+                            </div>
+                            <div className="mb-4">
+                                <select
+                                    name="dietary_restrictions"
+                                    value={guest.dietary_restrictions}
+                                    onChange={handleChange(index)}
+                                    className={`${sharedStyles.input} ${errors[index]?.dietary_restrictions ? 'border-red-500' : ''}`}
+                                    required
+                                >
+                                    <option value="" disabled>Select Dietary Restrictions</option>
+                                    {DIETARY_CHOICES.map(choice => (
+                                        <option key={choice.value} value={choice.value}>
+                                            {choice.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors[index]?.dietary_restrictions && <p className={sharedStyles.errorText}>{errors[index].dietary_restrictions}</p>}
+                            </div>
+                            {guest.dietary_restrictions === 'SPE' && (
+                                <div className="mb-4">
+                                    <textarea
+                                        name="specific_dietary_restrictions"
+                                        value={guest.specific_dietary_restrictions}
+                                        onChange={handleChange(index)}
+                                        className={`${sharedStyles.input} ${errors[index]?.specific_dietary_restrictions ? 'border-red-500' : ''}`}
+                                        placeholder="Please specify your dietary restrictions"
+                                    />
+                                    {errors[index]?.specific_dietary_restrictions && <p className={sharedStyles.errorText}>{errors[index].specific_dietary_restrictions}</p>}
+                                </div>
                             )}
                             {guests.length > 1 && (
                                 <button
@@ -154,7 +187,6 @@ const GuestRegistrationForm = () => {
                         Register All Guests
                     </button>
                 </form>
-                {error && <p className={sharedStyles.errorText}>{error}</p>}
                 {success && <p className={sharedStyles.successText}>{success}</p>}
             </div>
         </div>

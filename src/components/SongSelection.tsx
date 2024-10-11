@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { fetchGuests, submitSongRequest } from '../services/api';
 import { sharedStyles } from '../styles/shared';
+import BackButton from './BackButton';
+import AnimatedForm from './AnimatedForm';
 
 interface Guest {
     id: number;
@@ -13,7 +15,7 @@ interface SongSelectionData {
     artist: string;
 }
 
-const SongSelection: React.FC = () => {
+const SongSelection = () => {
     const [guests, setGuests] = useState<Guest[]>([]);
     const [formData, setFormData] = useState<SongSelectionData>({
         guest_id: null,
@@ -41,12 +43,12 @@ const SongSelection: React.FC = () => {
         loadGuests();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setSuccess('');
@@ -73,10 +75,10 @@ const SongSelection: React.FC = () => {
     }
 
     return (
-        <div className={sharedStyles.pageContainer}>
+        <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.contentContainer}>
-                <h2 className={sharedStyles.heading}>Song Request</h2>
-                <form onSubmit={handleSubmit} className={sharedStyles.form}>
+                <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
+                    <h2 className={sharedStyles.heading}>Song Request</h2>
                     <div>
                         <label htmlFor="guest_id" className={sharedStyles.label}>
                             Select Your Name
@@ -131,7 +133,8 @@ const SongSelection: React.FC = () => {
                     >
                         Submit Song Request
                     </button>
-                </form>
+                    <BackButton className="mt-4" />
+                </AnimatedForm>
                 {error && <p className={sharedStyles.errorText}>{error}</p>}
                 {success && <p className={sharedStyles.successText}>{success}</p>}
             </div>

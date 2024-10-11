@@ -1,9 +1,8 @@
 import axios from 'axios';
-
 import { GuestData } from '../types';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',  // Adjust this to your Django server's URL
+    baseURL: 'http://127.0.0.1:8000/api',
     withCredentials: true,
 });
 
@@ -24,11 +23,11 @@ export const registerGuest = (guestData: GuestData) => api.post('/guests/', gues
 export const fetchGuests = () => api.get('/guests/');
 export const submitRSVP = (rsvpData: any) => api.post('/rsvp/', rsvpData);
 export const submitSongRequest = (songData: any) => api.post('/songrequests/', songData);
-export const submitMemory = (memoryData: any) => api.post('/memories/', memoryData);
+export const submitMemory = (memoryData: { guest_id: number; memory_text: string }) => {
+    return api.post('/memories/', memoryData);
+};
 export const fetchAllMemories = () => api.get('/memories/all/');
 
-
-// Add this function to check authentication status
 export const checkAuthStatus = () => api.get('/auth_status/');
 
 export default api;
