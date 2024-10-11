@@ -6,6 +6,8 @@ import HomePage from './components/HomePage';
 import RSVP from './components/RSVP';
 import SongSelection from './components/SongSelection';
 import Memories from './components/Memories';
+import FAQ from './components/FAQ';
+import Accommodation from './components/Accommodation';
 
 const App = () => {
   useEffect(() => {
@@ -53,6 +55,22 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Memories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/faq"
+          element={
+            <ProtectedRoute>
+              <FAQ />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accommodation"
+          element={
+            <ProtectedRoute>
+              <Accommodation />
             </ProtectedRoute>
           }
         />

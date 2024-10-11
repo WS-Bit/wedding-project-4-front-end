@@ -12,6 +12,8 @@ const HomePage = () => {
                         <FloatingLink to="/rsvp" label="RSVP" delay="0" />
                         <FloatingLink to="/song-selection" label="Song Selection" delay="200" />
                         <FloatingLink to="/memories" label="Share Memories" delay="400" />
+                        <FloatingLink to="/faq" label="FAQ" delay="600" />
+                        <FloatingLink to="/accommodation" label="Accommodation" delay="800" />
                     </div>
                 </div>
             </main>
