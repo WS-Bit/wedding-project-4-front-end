@@ -82,7 +82,16 @@ const GuestRegistrationForm = () => {
                     // Handle validation errors
                     setErrors(prevErrors => {
                         const newErrors = [...prevErrors];
-                        newErrors[i] = err.response.data;
+                        newErrors[i] = Object.fromEntries(
+                            Object.entries(err.response.data).map(([key, value]) => [
+                                key,
+                                typeof value === 'string'
+                                    ? value.charAt(0).toUpperCase() + value.slice(1)
+                                    : Array.isArray(value)
+                                        ? value[0].charAt(0).toUpperCase() + value[0].slice(1)
+                                        : value
+                            ])
+                        );
                         return newErrors;
                     });
                 } else {

@@ -1,6 +1,6 @@
-import React from 'react';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
+import AnimatedForm from './AnimatedForm';
 
 interface AccommodationOption {
     name: string;
@@ -30,25 +30,27 @@ const accommodationOptions: AccommodationOption[] = [
     }
 ];
 
-const Accommodation: React.FC = () => {
+const Accommodation = () => {
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
                 <h2 className={sharedStyles.heading}>Accommodation Options</h2>
-                <p className="text-center mb-8 text-gray-700">
-                    We've curated a list of accommodation options near our venue to suit various preferences and budgets.
-                </p>
-                <div className="space-y-6">
-                    {accommodationOptions.map((option, index) => (
-                        <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-purple-200">
-                            <h3 className="text-xl font-semibold text-purple-800 mb-2">{option.name}</h3>
-                            <p className="text-gray-700 mb-2">{option.description}</p>
-                            <p className="text-purple-600 font-medium mb-2">{option.priceRange}</p>
-                            <p className="text-sm text-gray-600">{option.contactInfo}</p>
-                        </div>
-                    ))}
-                </div>
-                <BackButton className="mt-8" />
+                <AnimatedForm onSubmit={(e) => e.preventDefault()}>
+                    <p className="text-center mb-8 text-gray-700">
+                        We've curated a list of accommodation options near our venue to suit various preferences and budgets.
+                    </p>
+                    <div className="space-y-6">
+                        {accommodationOptions.map((option, index) => (
+                            <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-purple-200">
+                                <h3 className="text-xl font-semibold text-purple-800 mb-2">{option.name}</h3>
+                                <p className="text-gray-700 mb-2">{option.description}</p>
+                                <p className="text-purple-600 font-medium mb-2">{option.priceRange}</p>
+                                <p className="text-sm text-gray-600">{option.contactInfo}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <BackButton className="mt-8" />
+                </AnimatedForm>
             </div>
         </div>
     );

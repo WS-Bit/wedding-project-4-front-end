@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
+import AnimatedForm from './AnimatedForm';
 
 interface FAQItem {
     question: string;
@@ -22,15 +23,15 @@ const faqData: FAQItem[] = [
     },
     {
         question: "Are children welcome?",
-        answer: "We've decided to make our wedding an adult-only occasion. We hope you understand and can arrange for a sitter."
+        answer: "We love your little ones, but we've decided to make our wedding an adult-only occasion. We hope you understand and can arrange for a sitter."
     },
     {
-        question: "I messed up my registration form and forgot dietary restrictions, can I change that?",
-        answer: "Just give us a message, we will get the database updated for you!"
+        question: "What if I have dietary restrictions?",
+        answer: "Please let us know about any dietary restrictions when you RSVP. We'll do our best to accommodate your needs."
     }
 ];
 
-const FAQ: React.FC = () => {
+const FAQ = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
 
     const toggleQuestion = (index: number) => {
@@ -41,29 +42,31 @@ const FAQ: React.FC = () => {
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
                 <h2 className={sharedStyles.heading}>Frequently Asked Questions</h2>
-                <div className="space-y-4">
-                    {faqData.map((item, index) => (
-                        <div key={index} className="border border-purple-200 rounded-lg overflow-hidden">
-                            <button
-                                className="w-full text-left p-4 focus:outline-none hover:bg-purple-50 transition-colors duration-200"
-                                onClick={() => toggleQuestion(index)}
-                            >
-                                <div className="flex justify-between items-center">
-                                    <span className="font-medium text-purple-800">{item.question}</span>
-                                    <span className="text-purple-600">
-                                        {openIndex === index ? '−' : '+'}
-                                    </span>
-                                </div>
-                            </button>
-                            {openIndex === index && (
-                                <div className="p-4 bg-white">
-                                    <p className="text-gray-700">{item.answer}</p>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <BackButton className="mt-8" />
+                <AnimatedForm onSubmit={(e) => e.preventDefault()}>
+                    <div className="space-y-4">
+                        {faqData.map((item, index) => (
+                            <div key={index} className="border border-purple-200 rounded-lg overflow-hidden">
+                                <button
+                                    className="w-full text-left p-4 focus:outline-none hover:bg-purple-50 transition-colors duration-200"
+                                    onClick={() => toggleQuestion(index)}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-medium text-purple-800">{item.question}</span>
+                                        <span className="text-purple-600">
+                                            {openIndex === index ? '−' : '+'}
+                                        </span>
+                                    </div>
+                                </button>
+                                {openIndex === index && (
+                                    <div className="p-4 bg-white">
+                                        <p className="text-gray-700">{item.answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <BackButton className="mt-8" />
+                </AnimatedForm>
             </div>
         </div>
     );
