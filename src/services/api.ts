@@ -37,7 +37,14 @@ export const fetchCsrfToken = async () => {
     return response;
 };
 
-export const checkPassword = (password: string) => api.post('/enter_password/', { password });
+export const checkPassword = async (password: string) => {
+    const response = await api.post('/enter_password/', { password });
+    if (response.data.csrfToken) {
+        api.defaults.headers.common['X-CSRFToken'] = response.data.csrfToken;
+    }
+    return response;
+};
+
 export const registerGuest = (guestData: GuestData) => api.post('/guests/', guestData);
 export const fetchGuests = () => api.get('/guests/');
 export const submitRSVP = (rsvpData: any) => api.post('/rsvp/', rsvpData);
