@@ -43,26 +43,15 @@ export const fetchCsrfToken = async () => {
             withCredentials: true,
         });
 
-        // Check response for token
-        const csrfToken = response.data.csrfToken;
+        console.log('CSRF cookie response:', response);
+        console.log('All cookies after CSRF request:', document.cookie);
 
-        if (csrfToken) {
-            console.log('CSRF Token fetched from response:', csrfToken);
-            return csrfToken;
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            throw new Error('CSRF token not found after fetch attempt');
         }
 
-        // If not in response, check cookies
-        const cookies = document.cookie.split(';');
-        const csrfCookie = cookies.find(cookie => cookie.trim().startsWith('csrftoken='));
-
-        if (csrfCookie) {
-            const token = csrfCookie.split('=')[1].trim();
-            console.log('CSRF Token fetched from cookies:', token);
-            return token;
-        }
-
-        console.error('CSRF token not found in response or cookies');
-        throw new Error('CSRF token not found');
+        return csrfToken;
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
         throw error;
