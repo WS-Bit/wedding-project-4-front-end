@@ -36,7 +36,7 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
-        const response = await api.get('/csrf_cookie/', {
+        const response = await api.get('api/csrf_cookie/', {
             withCredentials: true
         });
         console.log('CSRF response:', response);
@@ -53,7 +53,7 @@ export const checkPassword = async (password: string) => {
         const formData = new URLSearchParams();
         formData.append('password', password);
 
-        const response = await api.post('/enter_password/', formData, {
+        const response = await api.post('api/enter_password/', formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
@@ -77,7 +77,7 @@ export const checkPassword = async (password: string) => {
 };
 
 export const registerGuest = (guestData: GuestData) =>
-    api.post('/guests/', JSON.stringify(guestData), {
+    api.post('api/guests/', JSON.stringify(guestData), {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -86,28 +86,28 @@ export const registerGuest = (guestData: GuestData) =>
 export const fetchGuests = () => api.get('/guests/');
 
 export const submitRSVP = (rsvpData: any) =>
-    api.post('/rsvp/', JSON.stringify(rsvpData), {
+    api.post('api/rsvp/', JSON.stringify(rsvpData), {
         headers: {
             'Content-Type': 'application/json',
         },
     });
 
 export const submitSongRequest = (songData: any) =>
-    api.post('/songrequests/', JSON.stringify(songData), {
+    api.post('api/songrequests/', JSON.stringify(songData), {
         headers: {
             'Content-Type': 'application/json',
         },
     });
 
 export const submitMemory = (memoryData: { guest_id: number; memory_text: string }) =>
-    api.post('/memories/', JSON.stringify(memoryData), {
+    api.post('api/memories/', JSON.stringify(memoryData), {
         headers: {
             'Content-Type': 'application/json',
         },
     });
 
-export const fetchAllMemories = () => api.get('/memories/all/');
+export const fetchAllMemories = () => api.get('api/memories/all/');
 
-export const checkAuthStatus = () => api.get('/auth_status/');
+export const checkAuthStatus = () => api.get('api/auth_status/');
 
 export default api;
