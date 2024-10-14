@@ -18,7 +18,9 @@ const App = () => {
   useEffect(() => {
     const initializeCsrf = async () => {
       try {
-        await fetchCsrfToken();
+        console.log('Initiating CSRF token fetch');
+        const token = await fetchCsrfToken();
+        console.log('CSRF token fetched:', token);
         setCsrfTokenFetched(true);
         setCsrfError(null);
       } catch (error) {

@@ -43,15 +43,18 @@ const PasswordEntry = () => {
         }
 
         try {
+            console.log('Submitting password...');
             const response = await checkPassword(password);
+            console.log('Password check response:', response);
 
-            if (response.data.is_authenticated) {
+            if (response.is_authenticated) {
                 localStorage.setItem('isAuthenticated', 'true');
                 navigate('/register');
             } else {
                 setError('Incorrect password. Please try again.');
             }
         } catch (err) {
+            console.error('Error in password check:', err);
             if (err instanceof Error) {
                 setError(`Error: ${err.message}`);
             } else {

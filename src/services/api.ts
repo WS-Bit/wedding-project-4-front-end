@@ -37,6 +37,7 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
+        console.log('Fetching CSRF token...');
         const response = await api.get('/api/csrf_cookie/', {
             withCredentials: true,
         });
@@ -44,19 +45,25 @@ export const fetchCsrfToken = async () => {
         console.log('CSRF response:', response);
         console.log('All cookies after fetch:', document.cookie);
 
-        // Check for CSRF token in cookies after the request
-        const csrfToken = getCsrfToken();
+        // Look for the CSRF token in the response headers
+        const csrfToken = response.headers['x-csrftoken'] || response.headers['X-CSRFToken'];
         if (csrfToken) {
-            console.log('CSRF Token fetched:', csrfToken);
+            console.log('CSRF Token found in headers:', csrfToken);
+            document.cookie = `csrftoken=${csrfToken}; path=/; SameSite=Lax`;
             return csrfToken;
-        } else {
-            console.error('CSRF token not found in cookies after fetch');
-            // Instead of throwing an error, we'll return null
-            return null;
         }
+
+        // If not in headers, check cookies
+        const cookieToken = getCsrfToken();
+        if (cookieToken) {
+            console.log('CSRF Token found in cookies:', cookieToken);
+            return cookieToken;
+        }
+
+        console.error('CSRF token not found in headers or cookies');
+        return null;
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
-        // Return null instead of throwing an error
         return null;
     }
 };
