@@ -42,37 +42,42 @@ export const fetchCsrfToken = async () => {
         });
 
         console.log('CSRF response:', response);
-        console.log('All cookies after fetch:', document.cookie); // Check cookies here
+        console.log('All cookies after fetch:', document.cookie);
 
-        // Check if the CSRF token is set in the response
-        const csrfToken = response.headers['x-csrftoken'];
+        // Check for CSRF token in cookies after the request
+        const csrfToken = getCsrfToken();
         if (csrfToken) {
-            // Store the CSRF token in the document.cookie
-            document.cookie = `csrftoken=${csrfToken}; SameSite=None; Secure`;
             console.log('CSRF Token fetched:', csrfToken);
             return csrfToken;
         } else {
-            console.error('CSRF token not found in the response');
-            throw new Error('CSRF token not found in the response');
+            console.error('CSRF token not found in cookies after fetch');
+            // Instead of throwing an error, we'll return null
+            return null;
         }
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
-        throw error;
+        // Return null instead of throwing an error
+        return null;
     }
 };
 
 export const checkPassword = async (password: string) => {
     try {
-        const csrfToken = getCsrfToken();
+        const csrfToken = await fetchCsrfToken();
 
         const formData = new URLSearchParams();
         formData.append('password', password);
 
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        };
+
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;
+        }
+
         const response = await api.post('/api/enter_password/', formData, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': csrfToken,
-            },
+            headers,
             withCredentials: true,
         });
 
