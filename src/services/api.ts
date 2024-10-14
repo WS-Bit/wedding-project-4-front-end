@@ -34,15 +34,11 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
-        const response = await api.get('/csrf_cookie/', { withCredentials: true });
+        const response = await api.get('/csrf_cookie/', {
+            withCredentials: true
+        });
         console.log('CSRF response:', response);
         console.log('All cookies after fetch:', document.cookie);
-        const token = getCsrfToken();
-        if (!token) {
-            console.error('CSRF token not found after fetch');
-        } else {
-            console.log('CSRF token found:', token);
-        }
         return response;
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
