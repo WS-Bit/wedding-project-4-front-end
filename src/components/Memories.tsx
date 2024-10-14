@@ -91,55 +91,53 @@ const Memories = () => {
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
-                <h2 className={sharedStyles.heading}>Memory Sharing</h2>
-
-                <div className="mb-8">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800">Shared Memories</h3>
-                    <MemoryConveyorBelt memories={memories} />
-                </div>
-
                 <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
-                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Share Your Memory</h3>
-                    <div>
-                        <label htmlFor="guest_id" className={sharedStyles.label}>
-                            Select Your Name
-                        </label>
-                        <select
-                            id="guest_id"
-                            name="guest_id"
-                            value={formData.guest_id || ''}
-                            onChange={handleChange}
-                            className={sharedStyles.select}
-                            required
-                        >
-                            <option value="">Select a guest</option>
-                            {guests.map((guest) => (
-                                <option key={guest.id} value={guest.id}>
-                                    {guest.name}
-                                </option>
-                            ))}
-                        </select>
+                    <h2 className={sharedStyles.heading}>Memory Sharing</h2>
+                    <div className="mb-8">
+                        <h3 className="text-xl font-bold mb-4 text-gray-800">Shared Memories</h3>
+                        <MemoryConveyorBelt memories={memories} />
                     </div>
-                    <div>
-                        <label htmlFor="memory_text" className={sharedStyles.label}>
-                            Your Memory
-                        </label>
-                        <textarea
-                            id="memory_text"
-                            name="memory_text"
-                            value={formData.memory_text}
-                            onChange={handleChange}
-                            required
-                            className={sharedStyles.input}
-                            rows={4}
-                            maxLength={100}
-                        />
-                    </div>
-                    <button type="submit" className={sharedStyles.button}>
-                        Share Memory
-                    </button>
-                    {formError && <p className={sharedStyles.errorText}>{formError}</p>}
-                    {formSuccess && <p className={sharedStyles.successText}>{formSuccess}</p>}
+                        <h3 className="text-lg font-semibold mb-4 text-gray-700">Share Your Memory</h3>
+                        <div>
+                            <label htmlFor="guest_id" className={sharedStyles.label}>
+                                Select Your Name
+                            </label>
+                            <select
+                                id="guest_id"
+                                name="guest_id"
+                                value={formData.guest_id || ''}
+                                onChange={handleChange}
+                                className={sharedStyles.select}
+                                required
+                            >
+                                <option value="">Select a guest</option>
+                                {guests.map((guest) => (
+                                    <option key={guest.id} value={guest.id}>
+                                        {guest.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="memory_text" className={sharedStyles.label}>
+                                Your Memory
+                            </label>
+                            <textarea
+                                id="memory_text"
+                                name="memory_text"
+                                value={formData.memory_text}
+                                onChange={handleChange}
+                                required
+                                className={sharedStyles.input}
+                                rows={4}
+                                maxLength={100}
+                            />
+                        </div>
+                        <button type="submit" className={sharedStyles.button}>
+                            Share Memory
+                        </button>
+                        {formError && <p className={sharedStyles.errorText}>{formError}</p>}
+                        {formSuccess && <p className={sharedStyles.successText}>{formSuccess}</p>}
                     <BackButton className="mt-4" />
                 </AnimatedForm>
             </div>

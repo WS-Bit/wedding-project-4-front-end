@@ -26,8 +26,8 @@ const faqData: FAQItem[] = [
         answer: "We love your little ones, but we've decided to make our wedding an adult-only occasion. We hope you understand and can arrange for a sitter."
     },
     {
-        question: "What if I have dietary restrictions?",
-        answer: "Please let us know about any dietary restrictions when you RSVP. We'll do our best to accommodate your needs."
+        question: "I think I may have put something wrong into the form/RSVP?",
+        answer: "We can amend anything you have put into the website so just drop us a message."
     }
 ];
 
@@ -41,30 +41,30 @@ const FAQ = () => {
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
-                <h2 className={sharedStyles.heading}>Frequently Asked Questions</h2>
                 <AnimatedForm onSubmit={(e) => e.preventDefault()}>
-                    <div className="space-y-4">
-                        {faqData.map((item, index) => (
-                            <div key={index} className="border border-purple-200 rounded-lg overflow-hidden">
-                                <button
-                                    className="w-full text-left p-4 focus:outline-none hover:bg-purple-50 transition-colors duration-200"
-                                    onClick={() => toggleQuestion(index)}
-                                >
-                                    <div className="flex justify-between items-center">
-                                        <span className="font-medium text-purple-800">{item.question}</span>
-                                        <span className="text-purple-600">
-                                            {openIndex === index ? '−' : '+'}
-                                        </span>
-                                    </div>
-                                </button>
-                                {openIndex === index && (
-                                    <div className="p-4 bg-white">
-                                        <p className="text-gray-700">{item.answer}</p>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                    <h2 className={sharedStyles.heading}>Frequently Asked Questions</h2>
+                        <div className="space-y-4">
+                            {faqData.map((item, index) => (
+                                <div key={index} className="border border-purple-200 rounded-lg overflow-hidden">
+                                    <button
+                                        className="w-full text-left p-4 focus:outline-none hover:bg-purple-50 transition-colors duration-200"
+                                        onClick={() => toggleQuestion(index)}
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-medium text-purple-800">{item.question}</span>
+                                            <span className="text-purple-600">
+                                                {openIndex === index ? '−' : '+'}
+                                            </span>
+                                        </div>
+                                    </button>
+                                    {openIndex === index && (
+                                        <div className="p-4 bg-white">
+                                            <p className="text-gray-700">{item.answer}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     <BackButton className="mt-8" />
                 </AnimatedForm>
             </div>
