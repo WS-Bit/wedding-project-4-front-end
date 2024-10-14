@@ -18,10 +18,25 @@ const GuestRegistrationForm = () => {
     const [errors, setErrors] = useState<ErrorState[]>([{}]);
     const [generalError, setGeneralError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(true);
+    const [csrfError, setCsrfError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchCsrfToken();
+        const initializeCsrf = async () => {
+            try {
+                setIsLoading(true);
+                await fetchCsrfToken();
+                setCsrfError(null);
+            } catch (error) {
+                console.error('Failed to fetch CSRF token:', error);
+                setCsrfError('Failed to initialize security token. Please refresh the page.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initializeCsrf();
     }, []);
 
     const handleChange = (index: number) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -29,7 +44,6 @@ const GuestRegistrationForm = () => {
         setGuests(prevGuests => prevGuests.map((guest, i) =>
             i === index ? { ...guest, [name]: value } : guest
         ));
-        // Clear error for this field when user starts typing
         setErrors(prevErrors => prevErrors.map((error, i) =>
             i === index ? { ...error, [name]: undefined } : error
         ));
@@ -39,7 +53,6 @@ const GuestRegistrationForm = () => {
         setGuests(prevGuests => prevGuests.map((guest, i) =>
             i === index ? { ...guest, phone: value } : guest
         ));
-        // Clear phone error when user changes the phone number
         setErrors(prevErrors => prevErrors.map((error, i) =>
             i === index ? { ...error, phone: undefined } : error
         ));
@@ -63,6 +76,11 @@ const GuestRegistrationForm = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (csrfError) {
+            setGeneralError('Cannot submit form due to security token issues. Please refresh the page.');
+            return;
+        }
+
         setErrors(guests.map(() => ({})));
         setGeneralError('');
         setSuccess('');
@@ -79,7 +97,6 @@ const GuestRegistrationForm = () => {
             } catch (err: any) {
                 allGuestsRegistered = false;
                 if (err.response && err.response.status === 400) {
-                    // Handle validation errors
                     setErrors(prevErrors => {
                         const newErrors = [...prevErrors];
                         newErrors[i] = Object.fromEntries(
@@ -94,8 +111,9 @@ const GuestRegistrationForm = () => {
                         );
                         return newErrors;
                     });
+                } else if (err.response && err.response.status === 403) {
+                    setGeneralError('CSRF verification failed. Please refresh the page and try again.');
                 } else {
-                    // Handle unexpected errors
                     setGeneralError('An unexpected error occurred. Please try again.');
                 }
             }
@@ -107,6 +125,14 @@ const GuestRegistrationForm = () => {
             setTimeout(() => navigate('/home'), 2000);
         }
     };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (csrfError) {
+        return <div className={sharedStyles.errorText}>{csrfError}</div>;
+    }
 
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>

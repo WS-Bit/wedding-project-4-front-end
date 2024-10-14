@@ -7,7 +7,10 @@ const api = axios.create({
 });
 
 function getCsrfToken() {
-    return document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+    console.log('All cookies:', document.cookie);
+    const token = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+    console.log('Found CSRF token:', token);
+    return token;
 }
 
 api.interceptors.request.use(config => {
@@ -33,6 +36,10 @@ export const fetchCsrfToken = async () => {
     try {
         const response = await api.get('/csrf_cookie/');
         console.log('CSRF response:', response);
+        const token = getCsrfToken();
+        if (!token) {
+            console.error('CSRF token not found after fetch');
+        }
         return response;
     } catch (error) {
         if (axios.isAxiosError(error)) {
