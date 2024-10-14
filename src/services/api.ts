@@ -1,17 +1,16 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { GuestData } from '../types';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     withCredentials: true,
-    headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    },
 });
 
 function getCsrfToken() {
-    return document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+    console.log('All cookies:', document.cookie);
+    const token = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+    console.log('Found CSRF token:', token);
+    return token;
 }
 
 api.interceptors.request.use(config => {
@@ -22,15 +21,14 @@ api.interceptors.request.use(config => {
     return config;
 });
 
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            console.error('Unauthorized access. Redirecting to login...');
-        }
-        return Promise.reject(error);
+api.interceptors.request.use(config => {
+    const csrfToken = getCsrfToken();
+    console.log('CSRF Token being sent:', csrfToken);
+    if (csrfToken) {
+        config.headers['X-CSRFToken'] = csrfToken;
     }
-);
+    return config;
+});
 
 export const fetchCsrfToken = async () => {
     try {
@@ -47,14 +45,31 @@ export const fetchCsrfToken = async () => {
 };
 
 export const checkPassword = async (password: string) => {
-    const formData = new URLSearchParams();
-    formData.append('password', password);
+    try {
+        const formData = new URLSearchParams();
+        formData.append('password', password);
 
-    return api.post('/enter_password/', formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+        const response = await api.post('/enter_password/', formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
+        return response;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            // This is an Axios error
+            const axiosError = error as AxiosError;
+            console.error('Axios error in checkPassword:', axiosError.response?.data || axiosError.message);
+            if (axiosError.response) {
+                console.error('Status:', axiosError.response.status);
+                console.error('Headers:', axiosError.response.headers);
+            }
+        } else {
+            // This is an unknown error
+            console.error('Unknown error in checkPassword:', error);
+        }
+        throw error;
+    }
 };
 
 export const registerGuest = (guestData: GuestData) =>
