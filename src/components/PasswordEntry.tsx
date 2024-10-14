@@ -7,15 +7,20 @@ const PasswordEntry = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [csrfFetched, setCsrfFetched] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const initializeCsrf = async () => {
             try {
+                setIsLoading(true);
                 await fetchCsrfToken();
+                setCsrfFetched(true);
             } catch (err) {
                 console.error('Error fetching CSRF token:', err);
                 setError('Failed to initialize security token. Please refresh the page.');
+            } finally {
+                setIsLoading(false);
             }
         };
         initializeCsrf();
@@ -23,6 +28,11 @@ const PasswordEntry = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!csrfFetched) {
+            setError('Please wait for the page to finish loading before submitting.');
+            return;
+        }
+
         setError('');
         setIsLoading(true);
 
@@ -71,15 +81,15 @@ const PasswordEntry = () => {
                             placeholder="Enter password"
                             required
                             aria-describedby="password-error"
-                            disabled={isLoading}
+                            disabled={isLoading || !csrfFetched}
                         />
                     </div>
                     <button
                         type="submit"
                         className={sharedStyles.button}
-                        disabled={isLoading}
+                        disabled={isLoading || !csrfFetched}
                     >
-                        {isLoading ? 'Unlocking...' : 'Enter'}
+                        {isLoading ? 'Unlocking...' : csrfFetched ? 'Enter' : 'Loading...'}
                     </button>
                 </form>
                 {error && (
@@ -94,6 +104,5 @@ const PasswordEntry = () => {
         </div>
     );
 };
-
 
 export default PasswordEntry;
