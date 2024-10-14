@@ -39,23 +39,22 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
-        const response = await api.get('/api/csrf_cookie/', {
+        // Make the request to set the CSRF cookie
+        await api.get('/api/csrf_cookie/', {
             withCredentials: true,
         });
 
-        console.log('CSRF response:', response);
-        console.log('All cookies after fetch:', document.cookie); // Check cookies here
+        // After the request, check for the CSRF token in the cookies
+        const cookies = document.cookie.split(';');
+        const csrfCookie = cookies.find(cookie => cookie.trim().startsWith('csrftoken='));
 
-        // Check if the CSRF token is set in the response
-        const csrfToken = response.headers['x-csrftoken'];
-        if (csrfToken) {
-            // Store the CSRF token in the document.cookie
-            document.cookie = `csrftoken=${csrfToken}; SameSite=None; Secure`;
+        if (csrfCookie) {
+            const csrfToken = csrfCookie.split('=')[1].trim();
             console.log('CSRF Token fetched:', csrfToken);
             return csrfToken;
         } else {
-            console.error('CSRF token not found in the response');
-            throw new Error('CSRF token not found in the response');
+            console.error('CSRF token not found in the cookies');
+            throw new Error('CSRF token not found in the cookies');
         }
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
