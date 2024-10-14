@@ -14,9 +14,8 @@ const PasswordEntry = () => {
         const initializeCsrf = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetchCsrfToken();
-                console.log('CSRF token fetched:', response);
-                setCsrfFetched(true);
+                await fetchCsrfToken();
+                setCsrfFetched(true); // Move this line inside the try block
             } catch (err) {
                 console.error('Error fetching CSRF token:', err);
                 setError('Failed to initialize security token. Please refresh the page.');

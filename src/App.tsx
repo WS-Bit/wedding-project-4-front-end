@@ -17,7 +17,7 @@ const App = () => {
     fetchCsrfToken().catch(console.error);
   }, []);
 
-  
+
   useEffect(() => {
     document.documentElement.classList.remove('dark');
   }, []);
