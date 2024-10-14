@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { GuestData } from '../types';
 
 const api = axios.create({
@@ -28,11 +28,21 @@ api.interceptors.response.use(
 );
 
 export const fetchCsrfToken = async () => {
-    const response = await api.get('/csrf_cookie/');
-    if (response.data.csrfToken) {
-        api.defaults.headers.common['X-CSRFToken'] = response.data.csrfToken;
+    try {
+        const response = await api.get('/csrf_cookie/');
+        console.log('CSRF response:', response);
+        return response;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            // This is an Axios error
+            const axiosError = error as AxiosError;
+            console.error('CSRF fetch error:', axiosError.response?.data || axiosError.message);
+        } else {
+            // This is an unknown error
+            console.error('Unknown error during CSRF fetch:', error);
+        }
+        throw error;
     }
-    return response;
 };
 
 export const checkPassword = async (password: string) => {
