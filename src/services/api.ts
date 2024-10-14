@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { GuestData } from '../types';
 
 const api = axios.create({
@@ -34,20 +34,18 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
-        const response = await api.get('/csrf_cookie/');
+        const response = await api.get('/csrf_cookie/', { withCredentials: true });
         console.log('CSRF response:', response);
+        console.log('All cookies after fetch:', document.cookie);
         const token = getCsrfToken();
         if (!token) {
             console.error('CSRF token not found after fetch');
+        } else {
+            console.log('CSRF token found:', token);
         }
         return response;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            const axiosError = error as AxiosError;
-            console.error('CSRF fetch error:', axiosError.response?.data || axiosError.message);
-        } else {
-            console.error('Unknown error during CSRF fetch:', error);
-        }
+        console.error('Error fetching CSRF token:', error);
         throw error;
     }
 };
