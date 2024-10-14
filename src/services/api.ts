@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { GuestData } from '../types';
 
 const api = axios.create({
-    baseURL: process.env.VITE_API_URL || 'http://localhost:8000/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     withCredentials: true,
 });
 
