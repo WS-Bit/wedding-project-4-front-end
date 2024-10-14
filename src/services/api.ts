@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { GuestData } from '../types';
 
+
+
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     withCredentials: true,
@@ -8,9 +10,9 @@ const api = axios.create({
 
 function getCsrfToken() {
     console.log('All cookies:', document.cookie);
-    const token = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
-    console.log('Found CSRF token:', token);
-    return token;
+    const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+    console.log('Found CSRF token:', csrfToken);
+    return csrfToken;
 }
 
 api.interceptors.request.use(config => {
@@ -37,31 +39,47 @@ api.interceptors.response.use(
 export const fetchCsrfToken = async () => {
     try {
         const response = await api.get('api/csrf_cookie/', {
-            withCredentials: true
+            withCredentials: true // Include cookies in the request
         });
+
+        // Log the response for debugging
         console.log('CSRF response:', response);
         console.log('All cookies after fetch:', document.cookie);
-        return response;
+
+        // Extract the CSRF token from the response
+        const csrfToken = response.data.csrfToken; // Make sure your Django response includes this key
+
+        // Log the CSRF token for debugging
+        console.log('CSRF Token fetched:', csrfToken);
+
+        return csrfToken; // Return the CSRF token
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
-        throw error;
+        throw error; // Rethrow the error to be handled by the calling function
     }
 };
 
+
 export const checkPassword = async (password: string) => {
     try {
+        // Fetch the CSRF token first
+        const csrfToken = await fetchCsrfToken(); // Ensure you have defined fetchCsrfToken as earlier
+
         const formData = new URLSearchParams();
         formData.append('password', password);
 
         const response = await api.post('api/enter_password/', formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken, // Include the CSRF token in the headers
             },
+            withCredentials: true, // Ensure cookies are sent with the request
         });
-        return response;
+
+        console.log('Password check response:', response.data); // Log the response data for debugging
+        return response.data; // Return the response data for further processing
     } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-            // This is an Axios error
             const axiosError = error as AxiosError;
             console.error('Axios error in checkPassword:', axiosError.response?.data || axiosError.message);
             if (axiosError.response) {
@@ -69,12 +87,12 @@ export const checkPassword = async (password: string) => {
                 console.error('Headers:', axiosError.response.headers);
             }
         } else {
-            // This is an unknown error
             console.error('Unknown error in checkPassword:', error);
         }
-        throw error;
+        throw error; // Rethrow the error for handling in calling function
     }
 };
+
 
 export const registerGuest = (guestData: GuestData) =>
     api.post('api/guests/', JSON.stringify(guestData), {
