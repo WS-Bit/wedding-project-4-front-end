@@ -39,31 +39,33 @@ api.interceptors.response.use(
 export const fetchCsrfToken = async () => {
     try {
         const response = await api.get('api/csrf_cookie/', {
-            withCredentials: true // Include cookies in the request
+            withCredentials: true
         });
 
-        // Log the response for debugging
         console.log('CSRF response:', response);
         console.log('All cookies after fetch:', document.cookie);
 
-        // Extract the CSRF token from the response
-        const csrfToken = response.data.csrfToken; // Make sure your Django response includes this key
+        // Extract CSRF token from cookies or response headers
+        const csrfToken = response.headers['set-cookie']?.find(cookie => cookie.startsWith('csrftoken='))
+            ?.split('=')[1].split(';')[0];
 
-        // Log the CSRF token for debugging
         console.log('CSRF Token fetched:', csrfToken);
-
-        return csrfToken; // Return the CSRF token
+        return csrfToken;
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
-        throw error; // Rethrow the error to be handled by the calling function
+        throw error;
     }
 };
 
 
+
 export const checkPassword = async (password: string) => {
     try {
-        // Fetch the CSRF token first
-        const csrfToken = await fetchCsrfToken(); // Ensure you have defined fetchCsrfToken as earlier
+        const csrfToken = await fetchCsrfToken();
+
+        if (!csrfToken) {
+            throw new Error("CSRF token is undefined");
+        }
 
         const formData = new URLSearchParams();
         formData.append('password', password);
@@ -71,14 +73,15 @@ export const checkPassword = async (password: string) => {
         const response = await api.post('api/enter_password/', formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': csrfToken, // Include the CSRF token in the headers
+                'X-CSRFToken': csrfToken, // Ensure CSRF token is sent here
             },
-            withCredentials: true, // Ensure cookies are sent with the request
+            withCredentials: true,
         });
 
-        console.log('Password check response:', response.data); // Log the response data for debugging
-        return response.data; // Return the response data for further processing
+        console.log('Password check response:', response.data);
+        return response.data;
     } catch (error: unknown) {
+        // Existing error handling
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
             console.error('Axios error in checkPassword:', axiosError.response?.data || axiosError.message);
@@ -89,9 +92,10 @@ export const checkPassword = async (password: string) => {
         } else {
             console.error('Unknown error in checkPassword:', error);
         }
-        throw error; // Rethrow the error for handling in calling function
+        throw error;
     }
 };
+
 
 
 export const registerGuest = (guestData: GuestData) =>
