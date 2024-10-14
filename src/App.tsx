@@ -9,11 +9,15 @@ import SongSelection from './components/SongSelection';
 import Memories from './components/Memories';
 import FAQ from './components/FAQ';
 import Accommodation from './components/Accommodation';
+import { fetchCsrfToken } from './services/api';
 
 const App = () => {
   useEffect(() => {
-    // You might want to remove this if you're handling dark mode in your theme context
     document.documentElement.classList.remove('dark');
+  }, []);
+
+  useEffect(() => {
+    fetchCsrfToken().catch(console.error);
   }, []);
 
   return (
