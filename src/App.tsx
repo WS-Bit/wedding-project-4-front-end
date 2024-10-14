@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PasswordEntry from './components/PasswordEntry';
@@ -12,15 +12,35 @@ import Accommodation from './components/Accommodation';
 import { fetchCsrfToken } from './services/api';
 
 const App = () => {
+  const [csrfTokenFetched, setCsrfTokenFetched] = useState(false);
+  const [csrfError, setCsrfError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCsrfToken().catch(console.error);
-  }, []);
+    const initializeCsrf = async () => {
+      try {
+        await fetchCsrfToken();
+        setCsrfTokenFetched(true);
+        setCsrfError(null);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        setCsrfError('Failed to initialize security token. Please refresh the page.');
+      }
+    };
 
+    initializeCsrf();
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.remove('dark');
   }, []);
+
+  if (csrfError) {
+    return <div className="error-message">{csrfError}</div>;
+  }
+
+  if (!csrfTokenFetched) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ThemeProvider>

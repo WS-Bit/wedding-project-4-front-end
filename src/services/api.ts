@@ -1,20 +1,17 @@
 import axios, { AxiosError } from 'axios';
 import { GuestData } from '../types';
 
-
-
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     withCredentials: true,
 });
 
 function getCsrfToken() {
-    console.log('All cookies in getCsrfToken:', document.cookie);
+    console.log('All cookies:', document.cookie);
     const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
     console.log('Found CSRF token:', csrfToken);
     return csrfToken;
 }
-
 
 api.interceptors.request.use(config => {
     const csrfToken = getCsrfToken();
@@ -32,6 +29,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             console.error('Unauthorized access. Redirecting to login...');
+            // You can add logic here to redirect to login page if needed
         }
         return Promise.reject(error);
     }
@@ -43,28 +41,29 @@ export const fetchCsrfToken = async () => {
             withCredentials: true,
         });
 
-        console.log('CSRF cookie response:', response);
-        console.log('All cookies after CSRF request:', document.cookie);
+        console.log('CSRF response:', response);
+        console.log('All cookies after fetch:', document.cookie); // Check cookies here
 
-        const csrfToken = getCsrfToken();
-        if (!csrfToken) {
-            throw new Error('CSRF token not found after fetch attempt');
+        // Check if the CSRF token is set in the response
+        const csrfToken = response.headers['x-csrftoken'];
+        if (csrfToken) {
+            // Store the CSRF token in the document.cookie
+            document.cookie = `csrftoken=${csrfToken}; SameSite=None; Secure`;
+            console.log('CSRF Token fetched:', csrfToken);
+            return csrfToken;
+        } else {
+            console.error('CSRF token not found in the response');
+            throw new Error('CSRF token not found in the response');
         }
-
-        return csrfToken;
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
         throw error;
     }
 };
 
-
-
-
 export const checkPassword = async (password: string) => {
     try {
         const csrfToken = getCsrfToken();
-        console.log('All cookies before request:', document.cookie);
 
         const formData = new URLSearchParams();
         formData.append('password', password);
@@ -77,12 +76,9 @@ export const checkPassword = async (password: string) => {
             withCredentials: true,
         });
 
-        console.log('Response headers:', response.headers);
-        console.log('All cookies after response:', document.cookie);
-
         return response.data;
     } catch (error: unknown) {
-        // Error handling
+        // Existing error handling
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
             console.error('Axios error in checkPassword:', axiosError.response?.data || axiosError.message);
@@ -97,10 +93,9 @@ export const checkPassword = async (password: string) => {
     }
 };
 
-
-
+// The rest of your API functions remain the same
 export const registerGuest = (guestData: GuestData) =>
-    api.post('api/guests/', JSON.stringify(guestData), {
+    api.post('/api/guests/', JSON.stringify(guestData), {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -109,21 +104,21 @@ export const registerGuest = (guestData: GuestData) =>
 export const fetchGuests = () => api.get('/guests/');
 
 export const submitRSVP = (rsvpData: any) =>
-    api.post('api/rsvp/', JSON.stringify(rsvpData), {
+    api.post('/api/rsvp/', JSON.stringify(rsvpData), {
         headers: {
             'Content-Type': 'application/json',
         },
     });
 
 export const submitSongRequest = (songData: any) =>
-    api.post('api/songrequests/', JSON.stringify(songData), {
+    api.post('/api/songrequests/', JSON.stringify(songData), {
         headers: {
             'Content-Type': 'application/json',
         },
     });
 
 export const submitMemory = (memoryData: { guest_id: number; memory_text: string }) =>
-    api.post('api/memories/', JSON.stringify(memoryData), {
+    api.post('/api/memories/', JSON.stringify(memoryData), {
         headers: {
             'Content-Type': 'application/json',
         },
