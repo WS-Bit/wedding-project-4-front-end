@@ -9,7 +9,7 @@ const api = axios.create({
 });
 
 function getCsrfToken() {
-    console.log('All cookies:', document.cookie);
+    console.log('All cookies in getCsrfToken:', document.cookie);
     const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
     console.log('Found CSRF token:', csrfToken);
     return csrfToken;
@@ -39,23 +39,30 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
-        // Make the request to set the CSRF cookie
-        await api.get('/api/csrf_cookie/', {
+        const response = await api.get('/api/csrf_cookie/', {
             withCredentials: true,
         });
 
-        // After the request, check for the CSRF token in the cookies
+        // Check response for token
+        const csrfToken = response.data.csrfToken;
+
+        if (csrfToken) {
+            console.log('CSRF Token fetched from response:', csrfToken);
+            return csrfToken;
+        }
+
+        // If not in response, check cookies
         const cookies = document.cookie.split(';');
         const csrfCookie = cookies.find(cookie => cookie.trim().startsWith('csrftoken='));
 
         if (csrfCookie) {
-            const csrfToken = csrfCookie.split('=')[1].trim();
-            console.log('CSRF Token fetched:', csrfToken);
-            return csrfToken;
-        } else {
-            console.error('CSRF token not found in the cookies');
-            throw new Error('CSRF token not found in the cookies');
+            const token = csrfCookie.split('=')[1].trim();
+            console.log('CSRF Token fetched from cookies:', token);
+            return token;
         }
+
+        console.error('CSRF token not found in response or cookies');
+        throw new Error('CSRF token not found');
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
         throw error;
@@ -67,7 +74,8 @@ export const fetchCsrfToken = async () => {
 
 export const checkPassword = async (password: string) => {
     try {
-        const csrfToken = await getCsrfToken();
+        const csrfToken = getCsrfToken();
+        console.log('All cookies before request:', document.cookie);
 
         const formData = new URLSearchParams();
         formData.append('password', password);
@@ -80,9 +88,12 @@ export const checkPassword = async (password: string) => {
             withCredentials: true,
         });
 
+        console.log('Response headers:', response.headers);
+        console.log('All cookies after response:', document.cookie);
+
         return response.data;
     } catch (error: unknown) {
-        // Existing error handling
+        // Error handling
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
             console.error('Axios error in checkPassword:', axiosError.response?.data || axiosError.message);
