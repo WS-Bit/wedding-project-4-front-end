@@ -43,13 +43,18 @@ export const fetchCsrfToken = async () => {
             withCredentials: true,
         });
 
+        console.log('CSRF response:', response);
+        console.log('All cookies after fetch:', document.cookie); // Check cookies here
+
         // Check if the CSRF token is set in the response
         const csrfToken = response.headers['x-csrftoken'];
         if (csrfToken) {
             // Store the CSRF token in the document.cookie
             document.cookie = `csrftoken=${csrfToken}; SameSite=None; Secure`;
+            console.log('CSRF Token fetched:', csrfToken);
             return csrfToken;
         } else {
+            console.error('CSRF token not found in the response');
             throw new Error('CSRF token not found in the response');
         }
     } catch (error) {
