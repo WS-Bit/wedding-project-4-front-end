@@ -15,6 +15,7 @@ function getCsrfToken() {
     return csrfToken;
 }
 
+
 api.interceptors.request.use(config => {
     const csrfToken = getCsrfToken();
     console.log('CSRF Token being sent:', csrfToken);
