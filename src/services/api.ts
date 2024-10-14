@@ -1,16 +1,21 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { GuestData } from '../types';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+    baseURL: 'https://wedding-back-end-ga-32f0d464c773.herokuapp.com/api',
     withCredentials: true,
 });
 
+api.interceptors.request.use(config => {
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+        config.headers['X-CSRFToken'] = csrfToken;
+    }
+    return config;
+});
+
 function getCsrfToken() {
-    console.log('All cookies:', document.cookie);
-    const token = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
-    console.log('Found CSRF token:', token);
-    return token;
+    return document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 }
 
 api.interceptors.request.use(config => {
@@ -21,18 +26,9 @@ api.interceptors.request.use(config => {
     return config;
 });
 
-api.interceptors.request.use(config => {
-    const csrfToken = getCsrfToken();
-    console.log('CSRF Token being sent:', csrfToken);
-    if (csrfToken) {
-        config.headers['X-CSRFToken'] = csrfToken;
-    }
-    return config;
-});
-
 export const fetchCsrfToken = async () => {
     try {
-        const response = await api.get('/csrf_cookie/', {
+        const response = await axios.get('https://wedding-back-end-ga-32f0d464c773.herokuapp.com/api/csrf_cookie/', {
             withCredentials: true
         });
         console.log('CSRF response:', response);
@@ -55,17 +51,12 @@ export const checkPassword = async (password: string) => {
             },
         });
         return response;
-    } catch (error: unknown) {
+    } catch (error) {
         if (axios.isAxiosError(error)) {
-            // This is an Axios error
-            const axiosError = error as AxiosError;
-            console.error('Axios error in checkPassword:', axiosError.response?.data || axiosError.message);
-            if (axiosError.response) {
-                console.error('Status:', axiosError.response.status);
-                console.error('Headers:', axiosError.response.headers);
-            }
+            console.error('Axios error in checkPassword:', error.response?.data || error.message);
+            console.error('Status:', error.response?.status);
+            console.error('Headers:', error.response?.headers);
         } else {
-            // This is an unknown error
             console.error('Unknown error in checkPassword:', error);
         }
         throw error;

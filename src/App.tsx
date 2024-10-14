@@ -12,12 +12,14 @@ import Accommodation from './components/Accommodation';
 import { fetchCsrfToken } from './services/api';
 
 const App = () => {
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-  }, []);
 
   useEffect(() => {
     fetchCsrfToken().catch(console.error);
+  }, []);
+
+  
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
   }, []);
 
   return (
