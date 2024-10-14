@@ -39,19 +39,19 @@ api.interceptors.response.use(
 
 export const fetchCsrfToken = async () => {
     try {
-        const response = await api.get('api/csrf_cookie/', {
-            withCredentials: true
+        const response = await api.get('/api/csrf_cookie/', {
+            withCredentials: true,
         });
 
-        console.log('CSRF response:', response);
-        console.log('All cookies after fetch:', document.cookie);
-
-        // Extract CSRF token from cookies or response headers
-        const csrfToken = response.headers['set-cookie']?.find(cookie => cookie.startsWith('csrftoken='))
-            ?.split('=')[1].split(';')[0];
-
-        console.log('CSRF Token fetched:', csrfToken);
-        return csrfToken;
+        // Check if the CSRF token is set in the response
+        const csrfToken = response.headers['x-csrftoken'];
+        if (csrfToken) {
+            // Store the CSRF token in the document.cookie
+            document.cookie = `csrftoken=${csrfToken}; SameSite=None; Secure`;
+            return csrfToken;
+        } else {
+            throw new Error('CSRF token not found in the response');
+        }
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
         throw error;
@@ -60,26 +60,22 @@ export const fetchCsrfToken = async () => {
 
 
 
+
 export const checkPassword = async (password: string) => {
     try {
-        const csrfToken = await fetchCsrfToken();
-
-        if (!csrfToken) {
-            throw new Error("CSRF token is undefined");
-        }
+        const csrfToken = await getCsrfToken();
 
         const formData = new URLSearchParams();
         formData.append('password', password);
 
-        const response = await api.post('api/enter_password/', formData, {
+        const response = await api.post('/api/enter_password/', formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': csrfToken, // Ensure CSRF token is sent here
+                'X-CSRFToken': csrfToken,
             },
             withCredentials: true,
         });
 
-        console.log('Password check response:', response.data);
         return response.data;
     } catch (error: unknown) {
         // Existing error handling
