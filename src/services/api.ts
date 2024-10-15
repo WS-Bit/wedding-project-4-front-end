@@ -2,8 +2,9 @@ import axios, { AxiosError } from 'axios';
 import { GuestData, RSVPData, SongSelectionData } from '../types';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
 });
+
 
 const getToken = (): string | null => localStorage.getItem('token');
 const removeToken = (): void => localStorage.removeItem('token');
