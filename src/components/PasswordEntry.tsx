@@ -1,65 +1,28 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { checkPassword, fetchCsrfToken } from '../services/api';
+import { checkPassword } from '../services/api';
 import { sharedStyles } from '../styles/shared';
 
 const PasswordEntry = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [csrfFetched, setCsrfFetched] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const initializeCsrf = async () => {
-            try {
-                setIsLoading(true);
-                await fetchCsrfToken();
-                setCsrfFetched(true); // Move this line inside the try block
-            } catch (err) {
-                console.error('Error fetching CSRF token:', err);
-                setError('Failed to initialize security token. Please refresh the page.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        initializeCsrf();
-    }, []);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!csrfFetched) {
-            setError('Please wait for the page to finish loading before submitting.');
-            return;
-        }
-
         setError('');
         setIsLoading(true);
-
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters long.');
-            setIsLoading(false);
-            return;
-        }
-
+        
         try {
-            console.log('Submitting password...');
-            const response = await checkPassword(password);
-            console.log('Password check response:', response);
-
-            if (response.is_authenticated) {
-                localStorage.setItem('isAuthenticated', 'true');
+            const isAuthenticated = await checkPassword(password);
+            if (isAuthenticated) {
                 navigate('/register');
             } else {
                 setError('Incorrect password. Please try again.');
             }
         } catch (err) {
-            console.error('Error in password check:', err);
-            if (err instanceof Error) {
-                setError(`Error: ${err.message}`);
-            } else {
-                setError('An unexpected error occurred. Please try again.');
-            }
+            setError('An unexpected error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -84,15 +47,15 @@ const PasswordEntry = () => {
                             placeholder="Enter password"
                             required
                             aria-describedby="password-error"
-                            disabled={isLoading || !csrfFetched}
+                            disabled={isLoading}
                         />
                     </div>
                     <button
                         type="submit"
                         className={sharedStyles.button}
-                        disabled={isLoading || !csrfFetched}
+                        disabled={isLoading}
                     >
-                        {isLoading ? 'Unlocking...' : csrfFetched ? 'Enter' : 'Loading...'}
+                        {isLoading ? 'Checking...' : 'Enter'}
                     </button>
                 </form>
                 {error && (

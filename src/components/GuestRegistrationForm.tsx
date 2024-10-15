@@ -1,6 +1,6 @@
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerGuest, fetchCsrfToken } from '../services/api';
+import { registerGuest } from '../services/api';
 import { GuestData, DIETARY_CHOICES } from '../types';
 import CustomPhoneInput from './CustomPhoneInput';
 import { sharedStyles } from '../styles/shared';
@@ -18,26 +18,7 @@ const GuestRegistrationForm = () => {
     const [errors, setErrors] = useState<ErrorState[]>([{}]);
     const [generalError, setGeneralError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [csrfError, setCsrfError] = useState<string | null>(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const initializeCsrf = async () => {
-            try {
-                setIsLoading(true);
-                await fetchCsrfToken();
-                setCsrfError(null);
-            } catch (error) {
-                console.error('Failed to fetch CSRF token:', error);
-                setCsrfError('Failed to initialize security token. Please refresh the page.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        initializeCsrf();
-    }, []);
 
     const handleChange = (index: number) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -76,14 +57,16 @@ const GuestRegistrationForm = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (csrfError) {
-            setGeneralError('Cannot submit form due to security token issues. Please refresh the page.');
-            return;
-        }
-
         setErrors(guests.map(() => ({})));
         setGeneralError('');
         setSuccess('');
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setGeneralError('Authentication required. Please log in again.');
+            navigate('/');
+            return;
+        }
 
         let allGuestsRegistered = true;
 
@@ -111,8 +94,11 @@ const GuestRegistrationForm = () => {
                         );
                         return newErrors;
                     });
-                } else if (err.response && err.response.status === 403) {
-                    setGeneralError('CSRF verification failed. Please refresh the page and try again.');
+                } else if (err.response && err.response.status === 401) {
+                    setGeneralError('Authentication failed. Please log in again.');
+                    localStorage.removeItem('token');
+                    navigate('/');
+                    return;
                 } else {
                     setGeneralError('An unexpected error occurred. Please try again.');
                 }
@@ -126,23 +112,16 @@ const GuestRegistrationForm = () => {
         }
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    if (csrfError) {
-        return <div className={sharedStyles.errorText}>{csrfError}</div>;
-    }
-
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
                 <h2 className={sharedStyles.heading}>Guest Registration</h2>
                 {generalError && <p className={sharedStyles.errorText}>{generalError}</p>}
                 <form onSubmit={handleSubmit} className={sharedStyles.form}>
-                    {guests.map((guest, index) => (
-                        <div key={index} className="mb-6 p-4 border rounded border-pink-200">
-                            <h3 className="text-lg font-semibold mb-2 text-gray-700">Guest {index + 1}</h3>
+                    <div className={sharedStyles.guestRegistrationScrollableContainer}>
+                        {guests.map((guest, index) => (
+                            <div key={index} className="mb-6 p-4 border rounded border-pink-200">
+                                <h3 className="text-lg font-semibold mb-2 text-gray-700">Guest {index + 1}</h3>
                             <div className="mb-4">
                                 <input
                                     type="text"
@@ -213,14 +192,17 @@ const GuestRegistrationForm = () => {
                                     Remove Guest
                                 </button>
                             )}
-                        </div>
-                    ))}
-                    <button type="button" onClick={addGuest} className={sharedStyles.button}>
-                        Add Another Guest
-                    </button>
-                    <button type="submit" className={sharedStyles.button}>
-                        Register All Guests
-                    </button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-4 space-y-4">
+                        <button type="button" onClick={addGuest} className={`${sharedStyles.button} w-full`}>
+                            Add Another Guest
+                        </button>
+                        <button type="submit" className={`${sharedStyles.button} w-full`}>
+                            Register All Guests
+                        </button>
+                    </div>
                 </form>
                 {success && <p className={sharedStyles.successText}>{success}</p>}
             </div>

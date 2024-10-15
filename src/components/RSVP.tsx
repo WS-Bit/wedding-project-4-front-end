@@ -3,6 +3,7 @@ import { fetchGuests, submitRSVP } from '../services/api';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
 import AnimatedForm from './AnimatedForm';
+import { GuestData, RSVPData } from '../types';
 
 const WEDDING_CHOICES = [
     { value: 'ENG', label: 'England' },
@@ -10,25 +11,11 @@ const WEDDING_CHOICES = [
     { value: 'BOTH', label: 'Both' },
 ] as const;
 
-type WeddingChoice = typeof WEDDING_CHOICES[number]['value'];
-
-interface Guest {
-    id: number;
-    name: string;
-}
-
-interface RSVPData {
-    guest_id: number | null;
-    wedding_selection: WeddingChoice;
-    is_attending: boolean;
-    additional_notes: string;
-}
-
 const RSVP = () => {
-    const [guests, setGuests] = useState<Guest[]>([]);
+    const [guests, setGuests] = useState<GuestData[]>([]);
     const [formData, setFormData] = useState<RSVPData>({
-        guest_id: null,
-        wedding_selection: WEDDING_CHOICES[0].value,
+        guest: 0,  // Initialize with 0 or another default value
+        wedding_selection: 'ENG',
         is_attending: true,
         additional_notes: '',
     });
@@ -41,12 +28,7 @@ const RSVP = () => {
             setIsLoading(true);
             try {
                 const response = await fetchGuests();
-                if (Array.isArray(response.data)) {
-                    setGuests(response.data);
-                } else {
-                    console.error('Unexpected response format:', response.data);
-                    setError('Failed to load guest list. Unexpected data format.');
-                }
+                setGuests(response.data);
             } catch (err) {
                 console.error('Failed to fetch guests', err);
                 setError('Failed to load guest list. Please try again later.');
@@ -62,7 +44,8 @@ const RSVP = () => {
         const { name, value, type } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
+                name === 'guest' ? Number(value) : value,
         }));
     };
 
@@ -71,7 +54,7 @@ const RSVP = () => {
         setError('');
         setSuccess('');
 
-        if (!formData.guest_id) {
+        if (formData.guest === 0) {
             setError('Please select a guest before submitting.');
             return;
         }
@@ -81,9 +64,9 @@ const RSVP = () => {
             if (response.status === 201) {
                 setSuccess('RSVP submitted successfully!');
             }
-        } catch (err) {
-            console.error('Error submitting RSVP:', err);
-            setError('Failed to submit RSVP. Please try again.');
+        } catch (err: any) {
+            console.error('Error details:', err.response?.data);
+            setError(`Failed to submit RSVP: ${err.response?.data?.detail || err.message || 'Unknown error'}`);
         }
     };
 
@@ -97,13 +80,13 @@ const RSVP = () => {
                 <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
                     <h2 className={sharedStyles.heading}>RSVP</h2>
                     <div>
-                        <label htmlFor="guest_id" className={sharedStyles.label}>
+                        <label htmlFor="guest" className={sharedStyles.label}>
                             Select Your Name
                         </label>
                         <select
-                            id="guest_id"
-                            name="guest_id"
-                            value={formData.guest_id || ''}
+                            id="guest"
+                            name="guest"
+                            value={formData.guest || ''}
                             onChange={handleChange}
                             className={sharedStyles.select}
                             required

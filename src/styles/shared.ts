@@ -12,6 +12,17 @@ export const sharedStyles = {
     label: 'label',
     errorText: 'error-text',
     successText: 'success-text',
+    guestRegistrationScrollableContainer: `
+        max-height: calc(100vh - 300px); 
+        overflow-y-auto; 
+        pr-4; 
+        scrollbar-thin; 
+        scrollbar-thumb-gray-400; 
+        scrollbar-track-gray-200; 
+        hover:scrollbar-thumb-gray-500; 
+        scrollbar-thumb-rounded-full; 
+        scrollbar-track-rounded-full;
+    `,
 };
 
 export const getThemeStyles = (theme: string) => {

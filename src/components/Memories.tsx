@@ -4,33 +4,17 @@ import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
 import AnimatedForm from './AnimatedForm';
 import MemoryConveyorBelt from './MemoryConveyorBelt';
-
-interface Guest {
-    id: number;
-    name: string;
-}
-
-interface Memory {
-    id: number;
-    guest_name: string;
-    memory_text: string;
-    date_shared: string;
-}
-
-interface MemoryFormData {
-    guest_id: number;
-    memory_text: string;
-}
+import { GuestData, MemoryData, MemoryFormData } from '../types';
 
 const Memories = () => {
-    const [guests, setGuests] = useState<Guest[]>([]);
+    const [guests, setGuests] = useState<GuestData[]>([]);
     const [formData, setFormData] = useState<MemoryFormData>({
-        guest_id: 0,
+        guest_id: 0,  // Changed from 'guest' to 'guest_id'
         memory_text: '',
     });
-    const [memories, setMemories] = useState<Memory[]>([]);
-    const [formError, setFormError] = useState<string>('');
-    const [formSuccess, setFormSuccess] = useState<string>('');
+    const [memories, setMemories] = useState<MemoryData[]>([]);
+    const [error, setError] = useState<string>('');
+    const [success, setSuccess] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -45,6 +29,7 @@ const Memories = () => {
                 setMemories(memoriesResponse.data);
             } catch (err) {
                 console.error('Failed to fetch data', err);
+                setError('Failed to load data. Please try again later.');
             } finally {
                 setIsLoading(false);
             }
@@ -60,18 +45,18 @@ const Memories = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setFormError('');
-        setFormSuccess('');
+        setError('');
+        setSuccess('');
 
         if (!formData.guest_id) {
-            setFormError('Please select a guest before submitting.');
+            setError('Please select a guest before submitting.');
             return;
         }
 
         try {
             const response = await submitMemory(formData);
             if (response.status === 201) {
-                setFormSuccess('Memory shared successfully!');
+                setSuccess('Memory shared successfully!');
                 setFormData({ guest_id: 0, memory_text: '' });
 
                 // Fetch updated memories
@@ -80,7 +65,7 @@ const Memories = () => {
             }
         } catch (err: any) {
             console.error('Error sharing memory:', err);
-            setFormError('Failed to share memory. Please try again.');
+            setError(`Failed to share memory: ${err.response?.data?.detail || err.message || 'Unknown error'}`);
         }
     };
 
@@ -97,47 +82,47 @@ const Memories = () => {
                         <h3 className="text-xl font-bold mb-4 text-gray-800">Shared Memories</h3>
                         <MemoryConveyorBelt memories={memories} />
                     </div>
-                        <h3 className="text-lg font-semibold mb-4 text-gray-700">Share Your Memory</h3>
-                        <div>
-                            <label htmlFor="guest_id" className={sharedStyles.label}>
-                                Select Your Name
-                            </label>
-                            <select
-                                id="guest_id"
-                                name="guest_id"
-                                value={formData.guest_id || ''}
-                                onChange={handleChange}
-                                className={sharedStyles.select}
-                                required
-                            >
-                                <option value="">Select a guest</option>
-                                {guests.map((guest) => (
-                                    <option key={guest.id} value={guest.id}>
-                                        {guest.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="memory_text" className={sharedStyles.label}>
-                                Your Memory
-                            </label>
-                            <textarea
-                                id="memory_text"
-                                name="memory_text"
-                                value={formData.memory_text}
-                                onChange={handleChange}
-                                required
-                                className={sharedStyles.input}
-                                rows={4}
-                                maxLength={100}
-                            />
-                        </div>
-                        <button type="submit" className={sharedStyles.button}>
-                            Share Memory
-                        </button>
-                        {formError && <p className={sharedStyles.errorText}>{formError}</p>}
-                        {formSuccess && <p className={sharedStyles.successText}>{formSuccess}</p>}
+                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Share Your Memory</h3>
+                    <div>
+                        <label htmlFor="guest_id" className={sharedStyles.label}>
+                            Select Your Name
+                        </label>
+                        <select
+                            id="guest_id"
+                            name="guest_id"
+                            value={formData.guest_id || ''}
+                            onChange={handleChange}
+                            className={sharedStyles.select}
+                            required
+                        >
+                            <option value="">Select a guest</option>
+                            {guests.map((guest) => (
+                                <option key={guest.id} value={guest.id}>
+                                    {guest.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="memory_text" className={sharedStyles.label}>
+                            Your Memory
+                        </label>
+                        <textarea
+                            id="memory_text"
+                            name="memory_text"
+                            value={formData.memory_text}
+                            onChange={handleChange}
+                            required
+                            className={sharedStyles.input}
+                            rows={4}
+                            maxLength={100}
+                        />
+                    </div>
+                    <button type="submit" className={sharedStyles.button}>
+                        Share Memory
+                    </button>
+                    {error && <p className={sharedStyles.errorText}>{error}</p>}
+                    {success && <p className={sharedStyles.successText}>{success}</p>}
                     <BackButton className="mt-4" />
                 </AnimatedForm>
             </div>

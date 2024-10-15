@@ -1,27 +1,17 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchGuests, submitSongRequest } from '../services/api';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
 import AnimatedForm from './AnimatedForm';
-
-interface Guest {
-    id: number;
-    name: string;
-}
-
-interface SongSelectionData {
-    guest_id: number | null;
-    song_title: string;
-    artist: string;
-}
+import { GuestData, SongSelectionData } from '../types';
 
 const SongSelection = () => {
-    const [guests, setGuests] = useState<Guest[]>([]);
+    const [guests, setGuests] = useState<GuestData[]>([]);
     const [formData, setFormData] = useState<SongSelectionData>({
-        guest_id: null,
         song_title: '',
         artist: '',
     });
+    const [selectedGuestId, setSelectedGuestId] = useState<number | ''>('');
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
@@ -43,33 +33,37 @@ const SongSelection = () => {
         loadGuests();
     }, []);
 
-    const handleChange = (e: ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === 'guest') {
+            setSelectedGuestId(value === '' ? '' : Number(value));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
-        if (!formData.guest_id) {
+        if (!selectedGuestId) {
             setError('Please select a guest before submitting.');
             return;
         }
 
         try {
-            const response = await submitSongRequest(formData);
+            const response = await submitSongRequest(formData, selectedGuestId as number);
             if (response.status === 201) {
                 setSuccess('Song request submitted successfully!');
-                setFormData({ ...formData, song_title: '', artist: '' });
+                setFormData({ song_title: '', artist: '' });
+                setSelectedGuestId('');
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error submitting song request:', err);
-            setError('Failed to submit song request. Please try again.');
+            setError(`Failed to submit song request: ${err.response?.data?.detail || err.message || 'Unknown error'}`);
         }
     };
-
     if (isLoading) {
         return <div className={sharedStyles.pageContainer}>Loading guests...</div>;
     }
@@ -80,13 +74,13 @@ const SongSelection = () => {
                 <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
                     <h2 className={sharedStyles.heading}>Song Request</h2>
                     <div>
-                        <label htmlFor="guest_id" className={sharedStyles.label}>
+                        <label htmlFor="guest" className={sharedStyles.label}>
                             Select Your Name
                         </label>
                         <select
-                            id="guest_id"
-                            name="guest_id"
-                            value={formData.guest_id || ''}
+                            id="guest"
+                            name="guest"
+                            value={selectedGuestId}
                             onChange={handleChange}
                             className={sharedStyles.select}
                             required
@@ -127,10 +121,7 @@ const SongSelection = () => {
                             required
                         />
                     </div>
-                    <button
-                        type="submit"
-                        className={sharedStyles.button}
-                    >
+                    <button type="submit" className={sharedStyles.button}>
                         Submit Song Request
                     </button>
                     <BackButton className="mt-4" />
