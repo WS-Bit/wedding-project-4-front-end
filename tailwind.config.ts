@@ -9,8 +9,10 @@ const config: Config = {
   theme: {
     extend: {},
   },
-  plugins: [require('tailwind-scrollbar'),],
-  darkMode: 'class', // This allows you to manually control dark mode
+  plugins: [require('tailwind-scrollbar')],
+  variants: {
+    scrollbar: ['rounded']
+  }
 }
 
 export default config

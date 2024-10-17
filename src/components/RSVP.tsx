@@ -4,6 +4,7 @@ import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
 import AnimatedForm from './AnimatedForm';
 import { GuestData, RSVPData } from '../types';
+import SearchableGuestDropdown from './SearchableGuestDropdown';
 
 const WEDDING_CHOICES = [
     { value: 'ENG', label: 'England' },
@@ -39,6 +40,10 @@ const RSVP = () => {
 
         loadGuests();
     }, []);
+
+    const handleGuestSelect = (guestId: number) => {
+        setFormData(prev => ({ ...prev, guest: guestId }));
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -79,26 +84,12 @@ const RSVP = () => {
             <div className={sharedStyles.contentContainer}>
                 <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
                     <h2 className={sharedStyles.heading}>RSVP</h2>
-                    <div>
-                        <label htmlFor="guest" className={sharedStyles.label}>
-                            Select Your Name
-                        </label>
-                        <select
-                            id="guest"
-                            name="guest"
-                            value={formData.guest || ''}
-                            onChange={handleChange}
-                            className={sharedStyles.select}
-                            required
-                        >
-                            <option value="">Select a guest</option>
-                            {guests.map((guest) => (
-                                <option key={guest.id} value={guest.id}>
-                                    {guest.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <SearchableGuestDropdown
+                        guests={guests}
+                        selectedGuestId={formData.guest}
+                        onGuestSelect={handleGuestSelect}
+                        label="Select Your Name"
+                    />
                     <div>
                         <label htmlFor="wedding_selection" className={sharedStyles.label}>
                             Which wedding(s) will you attend?

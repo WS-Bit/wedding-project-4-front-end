@@ -114,13 +114,13 @@ const GuestRegistrationForm = () => {
 
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
-            <div className={sharedStyles.wideContentContainer}>
+            <div className={`${sharedStyles.wideContentContainer} max-h-screen overflow-y-auto py-8`}>
                 <h2 className={sharedStyles.heading}>Guest Registration</h2>
                 {generalError && <p className={sharedStyles.errorText}>{generalError}</p>}
                 <form onSubmit={handleSubmit} className={sharedStyles.form}>
-                    <div className={sharedStyles.guestRegistrationScrollableContainer}>
+                    <div className="space-y-6">
                         {guests.map((guest, index) => (
-                            <div key={index} className="mb-6 p-4 border rounded border-pink-200">
+                            <div key={index} className="p-4 border rounded border-pink-200">
                                 <h3 className="text-lg font-semibold mb-2 text-gray-700">Guest {index + 1}</h3>
                             <div className="mb-4">
                                 <input

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchGuests, submitSongRequest } from '../services/api';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
+import SearchableGuestDropdown from './SearchableGuestDropdown';
 import AnimatedForm from './AnimatedForm';
 import { GuestData, SongSelectionData } from '../types';
 
@@ -32,6 +33,10 @@ const SongSelection = () => {
 
         loadGuests();
     }, []);
+
+    const handleGuestSelect = (guestId: number) => {
+        setSelectedGuestId(guestId);
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -73,26 +78,12 @@ const SongSelection = () => {
             <div className={sharedStyles.contentContainer}>
                 <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
                     <h2 className={sharedStyles.heading}>Song Request</h2>
-                    <div>
-                        <label htmlFor="guest" className={sharedStyles.label}>
-                            Select Your Name
-                        </label>
-                        <select
-                            id="guest"
-                            name="guest"
-                            value={selectedGuestId}
-                            onChange={handleChange}
-                            className={sharedStyles.select}
-                            required
-                        >
-                            <option value="">Select a guest</option>
-                            {guests.map((guest) => (
-                                <option key={guest.id} value={guest.id}>
-                                    {guest.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <SearchableGuestDropdown
+                        guests={guests}
+                        selectedGuestId={selectedGuestId}
+                        onGuestSelect={handleGuestSelect}
+                        label="Select Your Name"
+                    />
                     <div>
                         <label htmlFor="song_title" className={sharedStyles.label}>
                             Song Title
