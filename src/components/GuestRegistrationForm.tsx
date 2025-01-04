@@ -122,76 +122,76 @@ const GuestRegistrationForm = () => {
                         {guests.map((guest, index) => (
                             <div key={index} className="p-4 border rounded border-pink-200">
                                 <h3 className="text-lg font-semibold mb-2 text-gray-700">Guest {index + 1}</h3>
-                            <div className="mb-4">
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={guest.name}
-                                    onChange={handleChange(index)}
-                                    className={`${sharedStyles.input} ${errors[index]?.name ? 'border-red-500' : ''}`}
-                                    placeholder="Full Name"
-                                    required
-                                />
-                                {errors[index]?.name && <p className={sharedStyles.errorText}>{errors[index].name}</p>}
-                            </div>
-                            <div className="mb-4">
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={guest.email}
-                                    onChange={handleChange(index)}
-                                    className={`${sharedStyles.input} ${errors[index]?.email ? 'border-red-500' : ''}`}
-                                    placeholder="Email Address"
-                                    required
-                                />
-                                {errors[index]?.email && <p className={sharedStyles.errorText}>{errors[index].email}</p>}
-                            </div>
-                            <div className="mb-4">
-                                <CustomPhoneInput
-                                    value={guest.phone}
-                                    onChange={handlePhoneChange(index)}
-                                    placeholder="Phone Number"
-                                />
-                                {errors[index]?.phone && <p className={sharedStyles.errorText}>{errors[index].phone}</p>}
-                            </div>
-                            <div className="mb-4">
-                                <select
-                                    name="dietary_restrictions"
-                                    value={guest.dietary_restrictions}
-                                    onChange={handleChange(index)}
-                                    className={`${sharedStyles.input} ${errors[index]?.dietary_restrictions ? 'border-red-500' : ''}`}
-                                    required
-                                >
-                                    <option value="" disabled>Select Dietary Restrictions</option>
-                                    {DIETARY_CHOICES.map(choice => (
-                                        <option key={choice.value} value={choice.value}>
-                                            {choice.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors[index]?.dietary_restrictions && <p className={sharedStyles.errorText}>{errors[index].dietary_restrictions}</p>}
-                            </div>
-                            {guest.dietary_restrictions === 'SPE' && (
                                 <div className="mb-4">
-                                    <textarea
-                                        name="specific_dietary_restrictions"
-                                        value={guest.specific_dietary_restrictions}
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={guest.name}
                                         onChange={handleChange(index)}
-                                        className={`${sharedStyles.input} ${errors[index]?.specific_dietary_restrictions ? 'border-red-500' : ''}`}
-                                        placeholder="Please specify your dietary restrictions"
+                                        className={`${sharedStyles.input} ${errors[index]?.name ? 'border-red-500' : ''}`}
+                                        placeholder="Full Name"
+                                        required
                                     />
-                                    {errors[index]?.specific_dietary_restrictions && <p className={sharedStyles.errorText}>{errors[index].specific_dietary_restrictions}</p>}
+                                    {errors[index]?.name && <p className={sharedStyles.errorText}>{errors[index].name}</p>}
                                 </div>
-                            )}
-                            {guests.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => removeGuest(index)}
-                                    className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300 ease-in-out"
-                                >
-                                    Remove Guest
-                                </button>
-                            )}
+                                <div className="mb-4">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={guest.email}
+                                        onChange={handleChange(index)}
+                                        className={`${sharedStyles.input} ${errors[index]?.email ? 'border-red-500' : ''}`}
+                                        placeholder="Email Address"
+                                        required
+                                    />
+                                    {errors[index]?.email && <p className={sharedStyles.errorText}>{errors[index].email}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <CustomPhoneInput
+                                        value={guest.phone}
+                                        onChange={handlePhoneChange(index)}
+                                        placeholder="Phone Number"
+                                    />
+                                    {errors[index]?.phone && <p className={sharedStyles.errorText}>{errors[index].phone}</p>}
+                                </div>
+                                <div className="mb-4">
+                                    <select
+                                        name="dietary_restrictions"
+                                        value={guest.dietary_restrictions}
+                                        onChange={handleChange(index)}
+                                        className={`${sharedStyles.input} ${errors[index]?.dietary_restrictions ? 'border-red-500' : ''}`}
+                                        required
+                                    >
+                                        <option value="" disabled>Select Dietary Restrictions</option>
+                                        {DIETARY_CHOICES.map(choice => (
+                                            <option key={choice.value} value={choice.value}>
+                                                {choice.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors[index]?.dietary_restrictions && <p className={sharedStyles.errorText}>{errors[index].dietary_restrictions}</p>}
+                                </div>
+                                {guest.dietary_restrictions === 'SPE' && (
+                                    <div className="mb-4">
+                                        <textarea
+                                            name="specific_dietary_restrictions"
+                                            value={guest.specific_dietary_restrictions}
+                                            onChange={handleChange(index)}
+                                            className={`${sharedStyles.input} ${errors[index]?.specific_dietary_restrictions ? 'border-red-500' : ''}`}
+                                            placeholder="Please specify your dietary restrictions"
+                                        />
+                                        {errors[index]?.specific_dietary_restrictions && <p className={sharedStyles.errorText}>{errors[index].specific_dietary_restrictions}</p>}
+                                    </div>
+                                )}
+                                {guests.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeGuest(index)}
+                                        className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300 ease-in-out"
+                                    >
+                                        Remove Guest
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -205,6 +205,23 @@ const GuestRegistrationForm = () => {
                     </div>
                 </form>
                 {success && <p className={sharedStyles.successText}>{success}</p>}
+
+                {/* Bypass section */}
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                    <div className="text-center">
+                        <p className="text-gray-600 mb-4">Already completed registration elsewhere?</p>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem('isGuestRegistered', 'true');
+                                navigate('/home');
+                            }}
+                            className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
+                            type="button"
+                        >
+                            Skip to Home Page
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
