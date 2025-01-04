@@ -22,26 +22,28 @@ const SearchableGuestDropdown = ({
     const inputRef = useRef<HTMLInputElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
 
+    // Update filtered guests when search term changes
     useEffect(() => {
         const filtered = guests.filter(guest =>
             guest.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredGuests(filtered);
-        setIsDropdownOpen(searchTerm.length > 0);
+        // Only show dropdown if there are filtered results and we're not showing an exact match
+        const exactMatch = guests.some(guest =>
+            guest.name.toLowerCase() === searchTerm.toLowerCase()
+        );
+        setIsDropdownOpen(searchTerm.length > 0 && !exactMatch);
     }, [searchTerm, guests]);
 
+    // Update input value when selectedGuestId changes
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
-                setIsDropdownOpen(false);
+        if (selectedGuestId) {
+            const selectedGuest = guests.find(guest => guest.id === selectedGuestId);
+            if (selectedGuest) {
+                setSearchTerm(selectedGuest.name);
             }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+        }
+    }, [selectedGuestId, guests]);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -55,14 +57,18 @@ const SearchableGuestDropdown = ({
     }, [isDropdownOpen]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
+        const value = e.target.value;
+        setSearchTerm(value);
+        setIsDropdownOpen(true);
         if (selectedGuestId) {
             onGuestSelect(0); // Reset selection when typing
         }
     };
 
     const handleGuestClick = (guest: GuestData) => {
-        onGuestSelect(guest.id!);
+        if (!guest.id) return;
+
+        onGuestSelect(guest.id);
         setSearchTerm(guest.name);
         setIsDropdownOpen(false);
     };
@@ -84,21 +90,21 @@ const SearchableGuestDropdown = ({
             }}
         >
             {filteredGuests.map((guest) => (
-                <div
+                <button
                     key={guest.id}
-                    style={{
-                        padding: '0.5rem 1rem',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid #e5e7eb',
-                        backgroundColor: 'white'
-                    }}
+                    type="button"
+                    className={`
+                        w-full text-left px-4 py-2 hover:bg-purple-50 
+                        transition-colors duration-150 border-b border-gray-100
+                        ${guest.id === selectedGuestId ? 'bg-purple-50' : 'bg-white'}
+                    `}
                     onClick={() => handleGuestClick(guest)}
                 >
                     {guest.name}
-                </div>
+                </button>
             ))}
             {filteredGuests.length === 0 && (
-                <div style={{ padding: '0.5rem 1rem', color: '#6b7280', backgroundColor: 'white' }}>
+                <div className="px-4 py-2 text-gray-500">
                     No matching guests found
                 </div>
             )}

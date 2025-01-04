@@ -3,7 +3,7 @@ import { sharedStyles, getThemeStyles } from '../styles/shared';
 import { useTheme } from '../contexts/ThemeContext';
 
 const HomePage = () => {
-    const { theme, setTheme } = useTheme();
+    const { theme } = useTheme();
     const themeStyles = getThemeStyles(theme);
 
     return (
@@ -19,17 +19,26 @@ const HomePage = () => {
                         <FloatingLink to="/faq" label="FAQ" delay="600" />
                         <FloatingLink to="/accommodation" label="Accommodation" delay="800" />
                     </div>
-                    <div className="flex justify-center gap-4 mt-8">
-                        <button onClick={() => setTheme('default')} className={`${themeStyles.button} ${theme === 'default' ? 'ring-2 ring-purple-500' : ''}`}>
+                    {/* <div className="flex justify-center gap-4 mt-8">
+                        <button
+                            onClick={() => setTheme('default')}
+                            className={`${themeStyles.button} ${theme === 'default' ? 'ring-2 ring-white' : ''}`}
+                        >
                             Default Theme
                         </button>
-                        <button onClick={() => setTheme('dark')} className={`${themeStyles.button} ${theme === 'dark' ? 'ring-2 ring-purple-500' : ''}`}>
+                        <button
+                            onClick={() => setTheme('dark')}
+                            className={`${themeStyles.button} ${theme === 'dark' ? 'ring-2 ring-white' : ''}`}
+                        >
                             Dark Theme
                         </button>
-                        <button onClick={() => setTheme('light')} className={`${themeStyles.button} ${theme === 'light' ? 'ring-2 ring-purple-500' : ''}`}>
+                        <button
+                            onClick={() => setTheme('light')}
+                            className={`${themeStyles.button} ${theme === 'light' ? 'ring-2 ring-white' : ''}`}
+                        >
                             Light Theme
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </main>
         </div>
@@ -53,7 +62,7 @@ const FloatingLink = ({ to, label, delay }: FloatingLinkProps) => {
             style={{ animation: `float 3s ease-in-out infinite ${delay}ms` }}
         >
             <span className={`text-lg font-medium ${themeStyles.text} group-hover:text-opacity-80`}>{label}</span>
-            <div className="absolute inset-0 border-2 border-purple-300 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 border-2 border-white-300 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </Link>
     );
 };

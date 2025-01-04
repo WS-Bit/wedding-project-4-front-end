@@ -4,7 +4,7 @@
     }
 
     .gradient-bg {
-        @apply bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100;
+        @apply bg-gradient-to-br from-[#d8c7cb] via-[#bca7ab] to-[#a08d91];
     }
 
     .image-bg {
@@ -12,15 +12,15 @@
     }
 
     .content-container {
-        @apply w-full max-w-md p-8 bg-white rounded-lg shadow-lg border border-pink-200;
+        @apply w-full max-w-md p-8 bg-white rounded-lg shadow-lg border border-[#bca7ab];
     }
 
     .wide-content-container {
-        @apply w-full max-w-2xl p-8 bg-white rounded-lg shadow-lg border border-pink-200;
+        @apply w-full max-w-2xl p-8 bg-white rounded-lg shadow-lg border border-[#bca7ab];
     }
 
     .heading {
-        @apply text-3xl font-serif text-center mb-6 text-purple-800;
+        @apply text-3xl font-serif text-center mb-6 text-[#8b7276];
     }
 
     .form {
@@ -29,15 +29,15 @@
 
     .input,
     .select {
-        @apply w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all;
+        @apply w-full p-2 border border-[#bca7ab] rounded-md focus:ring-2 focus:ring-[#bca7ab] focus:border-[#a08d91] transition-all;
     }
 
     .button {
-        @apply w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-purple-400 text-white rounded-md hover:from-pink-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-pink-300 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105;
+        @apply w-full py-2 px-4 bg-gradient-to-r from-[#bca7ab] to-[#a08d91] text-white rounded-md hover:from-[#a08d91] hover:to-[#8b7276] focus:outline-none focus:ring-2 focus:ring-[#bca7ab] border border-[#bca7ab] shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105;
     }
 
     .label {
-        @apply block text-sm font-medium text-gray-700 mb-1;
+        @apply block text-sm font-medium text-[#8b7276] mb-1;
     }
 
     .error-text {
@@ -45,7 +45,6 @@
     }
 
     .success-text {
-        @apply mt-2 text-sm text-green-600;
+        @apply mt-2 text-sm text-[#8b7276];
     }
 }
-

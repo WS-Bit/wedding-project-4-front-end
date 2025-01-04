@@ -42,12 +42,12 @@ body {
 
 a {
   font-weight: 500;
-  color: #7b07ce;
+  color: #8b7276;
   text-decoration: inherit;
 }
 
 a:hover {
-  color: #7b07ce;
+  color: #725c60;
 }
 
 
@@ -69,7 +69,7 @@ button {
 }
 
 button:hover {
-  border-color: #7b07ce;
+  border-color: #8b7276;
 }
 
 button:focus,

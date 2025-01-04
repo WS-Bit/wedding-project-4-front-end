@@ -51,8 +51,8 @@ const FAQ = () => {
                                         onClick={() => toggleQuestion(index)}
                                     >
                                         <div className="flex justify-between items-center">
-                                            <span className="font-medium text-purple-800">{item.question}</span>
-                                            <span className="text-purple-600">
+                                            <span className="font-medium text-mauve-800">{item.question}</span>
+                                            <span className="text-mauve-800">
                                                 {openIndex === index ? '−' : '+'}
                                             </span>
                                         </div>

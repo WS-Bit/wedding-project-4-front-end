@@ -42,8 +42,16 @@ const RSVP = () => {
     }, []);
 
     const handleGuestSelect = (guestId: number) => {
-        setFormData(prev => ({ ...prev, guest: guestId }));
+        console.log('Selected guest ID:', guestId); // Add this for debugging
+        setFormData(prev => ({
+            ...prev,
+            guest: guestId
+        }));
     };
+
+    useEffect(() => {
+        console.log('formData changed:', formData);
+    }, [formData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -59,7 +67,9 @@ const RSVP = () => {
         setError('');
         setSuccess('');
 
-        if (formData.guest === 0) {
+        console.log('Form data at submit:', formData); // Add this for debugging
+
+        if (!formData.guest) {  // Changed from === 0 to !formData.guest
             setError('Please select a guest before submitting.');
             return;
         }
@@ -84,6 +94,7 @@ const RSVP = () => {
             <div className={sharedStyles.contentContainer}>
                 <AnimatedForm onSubmit={handleSubmit} className={sharedStyles.form}>
                     <h2 className={sharedStyles.heading}>RSVP</h2>
+                    
                     <SearchableGuestDropdown
                         guests={guests}
                         selectedGuestId={formData.guest}
