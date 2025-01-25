@@ -9,6 +9,7 @@ import SongSelection from './components/SongSelection';
 import Memories from './components/Memories';
 import FAQ from './components/FAQ';
 import Accommodation from './components/Accommodation';
+import Gift from './components/Gift';
 
 const App = () => {
   React.useEffect(() => {
@@ -73,6 +74,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Accommodation />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/gifts"
+            element={
+              <ProtectedRoute>
+                <Gift />
               </ProtectedRoute>
             }
           />
