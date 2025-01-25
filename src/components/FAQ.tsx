@@ -15,7 +15,7 @@ const faqData: FAQItem[] = [
     },
     {
         question: "What should I wear?",
-        answer: "The dress code is semi-formal. Please avoid white as it's reserved for the bride."
+        answer: ""
     },
     {
         question: "Can I bring a plus one?",
@@ -28,6 +28,10 @@ const faqData: FAQItem[] = [
     {
         question: "I think I may have put something wrong into the form/RSVP?",
         answer: "We can amend anything you have put into the website so just drop us a message."
+    },
+        {
+        question: "What are you guys doing for gifts?",
+        answer: "Your presence at our wedding is the greatest gift we could ask for. Should you with to honour us with a gift, a contribution to our future home together would be greatly appreciated adn we will have a way to gift on the day."
     }
 ];
 
