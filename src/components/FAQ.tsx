@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
 import AnimatedForm from './AnimatedForm';
+import menImage from '../assets/men.jpeg';
+import womenImage from '../assets/women.jpeg';
+import colourImage from '../assets/colour.jpeg';
 
 interface FAQItem {
     question: string;
@@ -31,40 +34,9 @@ const faqData: FAQItem[] = [
     },
     {
         question: "What are you guys doing for gifts?",
-        answer: "Your presence at our wedding is the greatest gift we could ask for. Should you wish to honor us with a gift, a contribution to our future home together would be greatly appreciated and we will have a way to gift on the day."
+        answer: "Your presence at our wedding is the greatest gift we could ask for. Should you wish to honor us with a gift, a contribution to our future home together would be greatly appreciated and we have a way to gift on the website in the gift tab on the home screen."
     }
 ];
-
-interface ColorGuide {
-    name: string;
-    hex: string;
-}
-
-interface AttireGuide {
-    title: string;
-    description: string;
-    colors: ColorGuide[];
-    suggestions: string[];
-}
-
-const attireData: AttireGuide = {
-    title: "Wedding Attire Guide",
-    description: "We're going for an elegant garden party vibe with soft, romantic colors.",
-    colors: [
-        { name: "Sage Green", hex: "#87A788" },
-        { name: "Dusty Rose", hex: "#D8A7B1" },
-        { name: "Lavender", hex: "#E6E6FA" },
-        { name: "Soft Grey", hex: "#D3D3D3" },
-        { name: "Champagne", hex: "#F7E7CE" }
-    ],
-    suggestions: [
-        "Floral prints are welcome and encouraged",
-        "Light, breathable fabrics suitable for outdoor celebrations",
-        "Semi-formal to formal attire",
-        "Comfortable shoes suitable for garden terrain",
-        "Consider bringing a light jacket or wrap for evening"
-    ]
-};
 
 type TabType = 'faq' | 'attire';
 
@@ -103,7 +75,7 @@ const FAQ = () => {
 
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
-            <div className={sharedStyles.wideContentContainer}>
+            <div className={`${sharedStyles.wideContentContainer} max-h-screen overflow-y-auto`}>
                 <AnimatedForm onSubmit={(e) => e.preventDefault()}>
                     <h2 className={sharedStyles.heading}>Wedding Information</h2>
 
@@ -138,36 +110,28 @@ const FAQ = () => {
                             </div>
                         ) : (
                             <div className="space-y-6">
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-semibold text-[#2c2c2c] mb-2">{attireData.title}</h3>
-                                    <p className="text-[#2c2c2c]">{attireData.description}</p>
-                                </div>
-
-                                <div className="bg-[#d8c7cb] bg-opacity-20 p-4 rounded-lg">
-                                    <h4 className="font-medium text-[#2c2c2c] mb-4">Color Palette</h4>
-                                    <div className="flex flex-wrap gap-6">
-                                        {attireData.colors.map((color, index) => (
-                                            <div key={index} className="flex flex-col items-center gap-2">
-                                                <div
-                                                    className="w-12 h-12 rounded-full border-2 border-[#bca7ab] shadow-sm"
-                                                    style={{ backgroundColor: color.hex }}
-                                                />
-                                                <span className="text-sm text-[#2c2c2c]">{color.name}</span>
-                                            </div>
-                                        ))}
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <img
+                                            src={menImage}
+                                            alt="Men's Wedding Attire"
+                                            className="w-full h-auto rounded-lg shadow-md"
+                                        />
+                                    </div>
+                                    <div>
+                                        <img
+                                            src={womenImage}
+                                            alt="Women's Wedding Attire"
+                                            className="w-full h-auto rounded-lg shadow-md"
+                                        />
                                     </div>
                                 </div>
-
-                                <div className="bg-[#d8c7cb] bg-opacity-20 p-4 rounded-lg">
-                                    <h4 className="font-medium text-[#2c2c2c] mb-2">Style Suggestions</h4>
-                                    <ul className="space-y-2">
-                                        {attireData.suggestions.map((suggestion, index) => (
-                                            <li key={index} className="text-[#2c2c2c] flex items-center">
-                                                <span className="mr-2">•</span>
-                                                {suggestion}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                <div>
+                                    <img
+                                        src={colourImage}
+                                        alt="Wedding Color Palette"
+                                        className="w-full h-auto rounded-lg shadow-md"
+                                    />
                                 </div>
                             </div>
                         )}
