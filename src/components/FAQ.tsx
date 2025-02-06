@@ -15,7 +15,7 @@ const faqData: FAQItem[] = [
     },
     {
         question: "What should I wear?",
-        answer: ""
+        answer: "Please refer to the Attire Palette & Inspo tab above for detailed guidance on wedding attire."
     },
     {
         question: "Can I bring a plus one?",
@@ -29,46 +29,149 @@ const faqData: FAQItem[] = [
         question: "I think I may have put something wrong into the form/RSVP?",
         answer: "We can amend anything you have put into the website so just drop us a message."
     },
-        {
+    {
         question: "What are you guys doing for gifts?",
-        answer: "Your presence at our wedding is the greatest gift we could ask for. Should you with to honour us with a gift, a contribution to our future home together would be greatly appreciated adn we will have a way to gift on the day."
+        answer: "Your presence at our wedding is the greatest gift we could ask for. Should you wish to honor us with a gift, a contribution to our future home together would be greatly appreciated and we will have a way to gift on the day."
     }
 ];
 
+interface ColorGuide {
+    name: string;
+    hex: string;
+}
+
+interface AttireGuide {
+    title: string;
+    description: string;
+    colors: ColorGuide[];
+    suggestions: string[];
+}
+
+const attireData: AttireGuide = {
+    title: "Wedding Attire Guide",
+    description: "We're going for an elegant garden party vibe with soft, romantic colors.",
+    colors: [
+        { name: "Sage Green", hex: "#87A788" },
+        { name: "Dusty Rose", hex: "#D8A7B1" },
+        { name: "Lavender", hex: "#E6E6FA" },
+        { name: "Soft Grey", hex: "#D3D3D3" },
+        { name: "Champagne", hex: "#F7E7CE" }
+    ],
+    suggestions: [
+        "Floral prints are welcome and encouraged",
+        "Light, breathable fabrics suitable for outdoor celebrations",
+        "Semi-formal to formal attire",
+        "Comfortable shoes suitable for garden terrain",
+        "Consider bringing a light jacket or wrap for evening"
+    ]
+};
+
+type TabType = 'faq' | 'attire';
+
 const FAQ = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
+    const [activeTab, setActiveTab] = useState<TabType>('faq');
 
     const toggleQuestion = (index: number) => {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    const TabButton = ({ tab, label }: { tab: TabType; label: string }) => (
+        <button
+            onClick={() => setActiveTab(tab)}
+            className={`
+                px-6 py-3 
+                text-sm font-medium 
+                rounded-t-lg 
+                transition-all duration-200
+                relative
+                ${activeTab === tab
+                    ? 'bg-white text-[#2c2c2c] border-t-2 border-r-2 border-l-2 border-[#bca7ab] shadow-sm -mb-px'
+                    : 'bg-[#d8c7cb] text-[#2c2c2c] hover:bg-[#bca7ab] border border-transparent'
+                }
+                ${activeTab === tab ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-white' : ''}
+            `}
+        >
+            <span className={`${activeTab === tab ? 'font-bold' : ''}`}>
+                {label}
+            </span>
+            {activeTab === tab && (
+                <div className="absolute -bottom-px left-0 right-0 h-1 bg-white" />
+            )}
+        </button>
+    );
+
     return (
         <div className={`${sharedStyles.pageContainer} ${sharedStyles.gradientBg}`}>
             <div className={sharedStyles.wideContentContainer}>
                 <AnimatedForm onSubmit={(e) => e.preventDefault()}>
-                    <h2 className={sharedStyles.heading}>Frequently Asked Questions</h2>
-                        <div className="space-y-4">
-                            {faqData.map((item, index) => (
-                                <div key={index} className="border border-purple-200 rounded-lg overflow-hidden">
-                                    <button
-                                        className="w-full text-left p-4 focus:outline-none hover:bg-purple-50 transition-colors duration-200"
-                                        onClick={() => toggleQuestion(index)}
-                                    >
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-medium text-mauve-800">{item.question}</span>
-                                            <span className="text-mauve-800">
-                                                {openIndex === index ? '−' : '+'}
-                                            </span>
-                                        </div>
-                                    </button>
-                                    {openIndex === index && (
-                                        <div className="p-4 bg-white">
-                                            <p className="text-gray-700">{item.answer}</p>
-                                        </div>
-                                    )}
+                    <h2 className={sharedStyles.heading}>Wedding Information</h2>
+
+                    <div className="flex space-x-2 mb-4">
+                        <TabButton tab="faq" label="FAQ" />
+                        <TabButton tab="attire" label="Attire Palette & Inspo" />
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg border border-[#bca7ab]">
+                        {activeTab === 'faq' ? (
+                            <div className="space-y-4">
+                                {faqData.map((item, index) => (
+                                    <div key={index} className="border border-[#bca7ab] rounded-lg overflow-hidden">
+                                        <button
+                                            className="w-full text-left p-4 focus:outline-none hover:bg-[#d8c7cb] hover:bg-opacity-20 transition-colors duration-200"
+                                            onClick={() => toggleQuestion(index)}
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-medium text-[#2c2c2c]">{item.question}</span>
+                                                <span className="text-[#2c2c2c]">
+                                                    {openIndex === index ? '−' : '+'}
+                                                </span>
+                                            </div>
+                                        </button>
+                                        {openIndex === index && (
+                                            <div className="p-4 bg-white border-t border-[#bca7ab]">
+                                                <p className="text-[#2c2c2c]">{item.answer}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                <div className="mb-6">
+                                    <h3 className="text-lg font-semibold text-[#2c2c2c] mb-2">{attireData.title}</h3>
+                                    <p className="text-[#2c2c2c]">{attireData.description}</p>
                                 </div>
-                            ))}
-                        </div>
+
+                                <div className="bg-[#d8c7cb] bg-opacity-20 p-4 rounded-lg">
+                                    <h4 className="font-medium text-[#2c2c2c] mb-4">Color Palette</h4>
+                                    <div className="flex flex-wrap gap-6">
+                                        {attireData.colors.map((color, index) => (
+                                            <div key={index} className="flex flex-col items-center gap-2">
+                                                <div
+                                                    className="w-12 h-12 rounded-full border-2 border-[#bca7ab] shadow-sm"
+                                                    style={{ backgroundColor: color.hex }}
+                                                />
+                                                <span className="text-sm text-[#2c2c2c]">{color.name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-[#d8c7cb] bg-opacity-20 p-4 rounded-lg">
+                                    <h4 className="font-medium text-[#2c2c2c] mb-2">Style Suggestions</h4>
+                                    <ul className="space-y-2">
+                                        {attireData.suggestions.map((suggestion, index) => (
+                                            <li key={index} className="text-[#2c2c2c] flex items-center">
+                                                <span className="mr-2">•</span>
+                                                {suggestion}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     <BackButton className="mt-8" />
                 </AnimatedForm>
             </div>

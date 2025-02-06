@@ -14,7 +14,7 @@ const HomePage = () => {
                     <p className="mb-12 text-lg">We're thrilled to share our special day with you. Explore our wedding details below:</p>
                     <div className="flex flex-wrap justify-center gap-8 mb-8">
                         <FloatingLink to="/rsvp" label="RSVP" delay="0" />
-                        <FloatingLink to="/song-selection" label="Song Selection" delay="200" />
+                        <FloatingLink to="/song-selection" label="Song Suggestion" delay="200" />
                         <FloatingLink to="/memories" label="Share Memories" delay="400" />
                         <FloatingLink to="/faq" label="FAQ" delay="600" />
                         <FloatingLink to="/accommodation" label="Accommodation" delay="800" />
