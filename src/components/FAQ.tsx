@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { sharedStyles } from '../styles/shared';
 import BackButton from './BackButton';
 import AnimatedForm from './AnimatedForm';
+import parkingPDF from '../assets/parking.pdf';
 
 interface FAQItem {
     question: string;
@@ -32,7 +33,15 @@ const faqData: FAQItem[] = [
     {
         question: "What are you guys doing for gifts?",
         answer: "Your presence at our wedding is the greatest gift we could ask for. Should you wish to honor us with a gift, a contribution to our future home together would be greatly appreciated. There is a link to our gift registry on the home screen."
-    }
+    },
+    {
+        question: "What are the transport options in Australia?",
+        answer: "For the Australian wedding, getting to the venue should be accessible by lots of modes of transport as it is very central. There is parking at the Grounds and also a few multistory car parks nearby. You can view detailed parking information by clicking here: [parking guide](/assets/parking.pdf). If you have any questions, please let us know."
+    },
+    {
+        question: "What are the transport options in England?",
+        answer: " For the English celebration, we are considering hiring transport that will potentially go from Marlborough/Pewsey to Wilcot. If this is something you would be interested in, please let us know. If driving, we could advise not to drive down the church but to park more centrally in the village and walk down. As it's a small village as a whole, there isn't much space for lots of cars as it is so car shares or arranging transport is advised."
+    },
 ];
 
 const FAQ = () => {
@@ -65,7 +74,22 @@ const FAQ = () => {
                                     </button>
                                     {openIndex === index && (
                                         <div className="p-4 bg-white border-t border-[#bca7ab]">
-                                            <p className="text-[#2c2c2c]">{item.answer}</p>
+                                            {item.question === "What are the transport options in Australia?" ? (
+                                                <p className="text-[#2c2c2c]">
+                                                    For the Australian wedding, getting to the venue should be accessible by lots of modes of transport as it is very central. There is parking at the Grounds and also a few multistory car parks nearby. View our{' '}
+                                                    <a
+                                                        href={parkingPDF}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[#2c2c2c] underline hover:text-[#bca7ab] transition-colors duration-200"
+                                                    >
+                                                        parking guide
+                                                    </a>
+                                                    {' '}for detailed information. If you have any questions, please let us know.
+                                                </p>
+                                            ) : (
+                                                <p className="text-[#2c2c2c]">{item.answer}</p>
+                                            )}
                                         </div>
                                     )}
                                 </div>
