@@ -40,7 +40,7 @@ const faqData: FAQItem[] = [
     },
     {
         question: "What are the transport options in England?",
-        answer: " For the English celebration, we are considering hiring transport that will potentially go from Marlborough/Pewsey to Wilcot. If this is something you would be interested in, please let us know. If driving, we could advise not to drive down the church but to park more centrally in the village and walk down. As it's a small village as a whole, there isn't much space for lots of cars as it is so car shares or arranging transport is advised."
+        answer: " For the English celebration, we are considering hiring transport that will potentially go from Marlborough/Pewsey to Wilcot. If this is something you would be interested in, please let us know. If driving, we could advise not to drive down the church as it's down a small lane, and to park more centrally in the village and walk down. As it's a small village as a whole, there isn't much space for lots of cars so car shares or arranging transport is advised."
     },
 ];
 
