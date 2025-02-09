@@ -11,7 +11,10 @@ const Gift = ({ }: GiftProps) => {
             <div className={sharedStyles.wideContentContainer}>
                 <AnimatedForm onSubmit={(e) => e.preventDefault()}>
                     <h2 className={sharedStyles.heading}>Gift Registry</h2>
-                    <div className="flex flex-col items-center space-y-6">
+                    <div className="flex flex-col items-center text-centre space-y-6">
+                        <p className='text-centre'>Your presence at our wedding is the greatest gift we could ask for. Should you wish to honor us with a gift, a contribution to our future home together would be greatly appreciated. Please see the link below to the online registary we have created.</p>
+                        <br></br>
+                        <p>The password is: MeetTheSextons2025</p>
                         <a
                             href="https://www.hitchd.com/nicoleandwill2025"
                             target="_blank"
@@ -24,7 +27,7 @@ const Gift = ({ }: GiftProps) => {
                             src={giftQR}
                             alt="Gift Registry QR Code"
                             className="w-48 h-48 object-contain"
-                        />
+                        />    
                     </div>
                     <BackButton className="mt-8" />
                 </AnimatedForm>

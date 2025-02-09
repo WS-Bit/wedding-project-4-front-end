@@ -19,6 +19,7 @@ const HomePage = () => {
                         <FloatingLink to="/faq" label="FAQ" delay="600" />
                         <FloatingLink to="/accommodation" label="Accommodation" delay="800" />
                         <FloatingLink to="/gifts" label="Gift Registry" delay="1000" />
+                        <FloatingLink to="/attire" label="Attire Guide" delay="1200" />
                     </div>
                     {/* <div className="flex justify-center gap-4 mt-8">
                         <button
